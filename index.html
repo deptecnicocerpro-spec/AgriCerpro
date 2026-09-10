@@ -969,6 +969,14 @@
   document.getElementById("conv-value").addEventListener("input", renderConverter);
   document.getElementById("conv-commodity").addEventListener("change", renderConverter);
   document.getElementById("refresh-btn").addEventListener("click", loadData);
+
+  // iOS home-screen launches often resume a frozen page instead of doing a
+  // real reload, so loadData() above never runs again. Force a re-fetch
+  // whenever the page becomes visible/active again, so it's never stale.
+  window.addEventListener("pageshow", loadData);
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden) loadData();
+  });
 })();
 </script>
 </body>
