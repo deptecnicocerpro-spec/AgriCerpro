@@ -173,7 +173,7 @@
   .eurusd-pill {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 11.5px;
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: tabular-nums slashed-zero;
     background: var(--surface-2);
     border: 1px solid var(--line);
     border-radius: 999px;
@@ -320,6 +320,7 @@
     border-collapse: collapse;
     font-family: 'IBM Plex Mono', monospace;
     font-size: 12px;
+    font-variant-numeric: tabular-nums slashed-zero;
   }
   table.board-table th {
     text-align: right;
@@ -336,7 +337,7 @@
   table.board-table td {
     padding: 8px 3px;
     border-bottom: 1px solid var(--line);
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: tabular-nums slashed-zero;
     text-align: right;
     vertical-align: top;
     overflow-wrap: break-word;
@@ -359,10 +360,12 @@
 
   .change-badge {
     display: inline-block;
-    font-variant-numeric: tabular-nums;
-    font-weight: 600;
-    font-size: 10px;
-    padding: 2px 4px;
+    font-variant-numeric: tabular-nums slashed-zero;
+    font-feature-settings: "zero" 1;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.01em;
+    padding: 2px 5px;
     border-radius: 4px;
     white-space: nowrap;
   }
@@ -410,7 +413,7 @@
   .fx-field input, .fx-field select {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 15px;
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: tabular-nums slashed-zero;
     background: var(--surface-2);
     border: 1px solid var(--line);
     border-radius: 8px;
