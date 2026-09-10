@@ -642,21 +642,19 @@
 
   <section>
     <div class="section-head">
-      <h2>Conversor bushel → €/tonelada</h2>
+      <h2>Conversor bushel ⇄ €/tonelada</h2>
       <span class="exchange-tag gold">CBOT</span>
     </div>
     <div class="fx-card">
-      <div class="fx-row">
-        <div class="fx-field">
-          <label for="conv-value">$ por bushel</label>
-          <input id="conv-value" type="number" inputmode="decimal" value="5.3725" min="0" step="any">
-        </div>
-        <div class="fx-field">
-          <label for="conv-value-cents">¢ por bushel</label>
-          <input id="conv-value-cents" type="number" inputmode="decimal" value="537.25" min="0" step="any">
-        </div>
+      <div class="range-tabs" id="conv-direction-tabs">
+        <button class="range-tab active" type="button" data-dir="toEur">¢/bu → €/t</button>
+        <button class="range-tab" type="button" data-dir="toCents">€/t → ¢/bu</button>
       </div>
       <div class="fx-row">
+        <div class="fx-field">
+          <label for="conv-value" id="conv-value-label">¢ por bushel</label>
+          <input id="conv-value" type="number" inputmode="decimal" value="537.25" min="0" step="any">
+        </div>
         <div class="fx-field">
           <label for="conv-commodity">Produto</label>
           <select id="conv-commodity"></select>
@@ -665,29 +663,6 @@
       <div>
         <div class="fx-result" id="conv-result">—</div>
         <div class="fx-result-note" id="conv-formula"></div>
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <div class="section-head">
-      <h2>Conversor €/tonelada → bushel</h2>
-      <span class="exchange-tag blue">Euronext</span>
-    </div>
-    <div class="fx-card">
-      <div class="fx-row">
-        <div class="fx-field">
-          <label for="conv2-value">€ por tonelada</label>
-          <input id="conv2-value" type="number" inputmode="decimal" value="265.00" min="0" step="any">
-        </div>
-        <div class="fx-field">
-          <label for="conv2-commodity">Produto</label>
-          <select id="conv2-commodity"></select>
-        </div>
-      </div>
-      <div>
-        <div class="fx-result" id="conv2-result">—</div>
-        <div class="fx-result-note" id="conv2-formula"></div>
       </div>
     </div>
   </section>
@@ -841,45 +816,38 @@
     sel.value = "corn";
   }
 
+  var convDirection = "toEur";
+
   function renderConverter() {
     var val = parseFloat(document.getElementById("conv-value").value) || 0;
     var commodity = document.getElementById("conv-commodity").value;
-    var eurT = cbotToEurPerTon(val, commodity);
-    document.getElementById("conv-result").innerHTML = fmt2.format(eurT) + ' <span>€/t</span>';
-    document.getElementById("conv-formula").textContent =
-      "€/t = (" + fmt2.format(val * 100) + "¢/bu × " + FACTORS[commodity] + " ÷ 100) ÷ " + fmt4.format(state.eurusd) + " (EUR/USD)";
+    var resultEl = document.getElementById("conv-result");
+    var noteEl = document.getElementById("conv-formula");
+    if (convDirection === "toEur") {
+      var eurT = cbotToEurPerTon(val / 100, commodity);
+      resultEl.innerHTML = fmt2.format(eurT) + ' <span>€/t</span>';
+      noteEl.textContent =
+        "€/t = (" + fmt2.format(val) + "¢/bu ÷ 100 × " + FACTORS[commodity] + ") ÷ " + fmt4.format(state.eurusd) + " (EUR/USD)";
+    } else {
+      var centsPerBu = (val * state.eurusd / FACTORS[commodity]) * 100;
+      resultEl.innerHTML = fmt2.format(centsPerBu) + ' <span>¢/bu</span>';
+      noteEl.textContent =
+        "¢/bu = (€" + val + "/t × " + fmt4.format(state.eurusd) + " ÷ " + FACTORS[commodity] + ") × 100";
+    }
   }
 
-  function onDollarInput() {
-    var val = parseFloat(document.getElementById("conv-value").value) || 0;
-    document.getElementById("conv-value-cents").value = Math.round(val * 100 * 100) / 100;
+  function setConvDirection(dir) {
+    convDirection = dir;
+    var label = document.getElementById("conv-value-label");
+    var input = document.getElementById("conv-value");
+    if (dir === "toEur") {
+      label.textContent = "¢ por bushel";
+      input.value = 537.25;
+    } else {
+      label.textContent = "€ por tonelada";
+      input.value = 265;
+    }
     renderConverter();
-  }
-
-  function onCentsInput() {
-    var cents = parseFloat(document.getElementById("conv-value-cents").value) || 0;
-    document.getElementById("conv-value").value = Math.round(cents / 100 * 10000) / 10000;
-    renderConverter();
-  }
-
-  var COMMODITY_LABELS_EURONEXT = { corn: "Milho", wheat: "Trigo mole" };
-
-  function populateConverter2() {
-    var sel = document.getElementById("conv2-commodity");
-    sel.innerHTML = Object.keys(COMMODITY_LABELS_EURONEXT).map(function (k) {
-      return '<option value="' + k + '">' + COMMODITY_LABELS_EURONEXT[k] + '</option>';
-    }).join("");
-    sel.value = "corn";
-  }
-
-  function renderConverter2() {
-    var val = parseFloat(document.getElementById("conv2-value").value) || 0;
-    var commodity = document.getElementById("conv2-commodity").value;
-    var usdPerBu = (val * state.eurusd) / FACTORS[commodity];
-    var centsPerBu = usdPerBu * 100;
-    document.getElementById("conv2-result").innerHTML = fmt2.format(centsPerBu) + ' <span>¢/bu</span>';
-    document.getElementById("conv2-formula").textContent =
-      "¢/bu = (€" + val + "/t × " + fmt4.format(state.eurusd) + " ÷ " + FACTORS[commodity] + ") × 100 (= " + fmt4.format(usdPerBu) + " $/bu)";
   }
 
   function renderAll() {
@@ -889,7 +857,6 @@
     renderFisico();
     renderSima();
     renderConverter();
-    renderConverter2();
   }
 
   function loadData() {
@@ -1019,17 +986,20 @@
   }
 
   populateConverter();
-  populateConverter2();
   renderAll();
   loadData();
   initBoardTabs();
   initHistoryModal();
 
-  document.getElementById("conv-value").addEventListener("input", onDollarInput);
-  document.getElementById("conv-value-cents").addEventListener("input", onCentsInput);
+  document.getElementById("conv-value").addEventListener("input", renderConverter);
   document.getElementById("conv-commodity").addEventListener("change", renderConverter);
-  document.getElementById("conv2-value").addEventListener("input", renderConverter2);
-  document.getElementById("conv2-commodity").addEventListener("change", renderConverter2);
+  document.querySelectorAll("#conv-direction-tabs .range-tab").forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      document.querySelectorAll("#conv-direction-tabs .range-tab").forEach(function (t) { t.classList.remove("active"); });
+      tab.classList.add("active");
+      setConvDirection(tab.dataset.dir);
+    });
+  });
   document.getElementById("refresh-btn").addEventListener("click", loadData);
 
   // iOS home-screen launches often resume a frozen page instead of doing a
