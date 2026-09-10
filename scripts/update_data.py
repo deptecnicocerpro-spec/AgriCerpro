@@ -158,10 +158,12 @@ def fetch_euronext(html):
 
 # ----------------------------------------------------------------- Fisico --
 
+_VAR_TAIL = r"</td><td[^>]*>[\d.]*</td><td[^>]*>[\d.]*</td><td[^>]*>[\d.]*</td><td[^>]*><span[^>]*>([+-][\d.]+)</span>"
+
 AGRITEL_PHYSICAL_ROWS = [
-    ("Trigo duro", "La Pallice, base jul.", r"Durum wheat delivered La Pallice[^<]*<[^>]*><[^>]*></td><td[^>]*>([\d.]+)"),
-    ("Milho", "Bordeaux, base jul.", r"Corn delivered Bordeaux[^<]*<[^>]*><[^>]*></td><td[^>]*>([\d.]+)"),
-    ("Colza", "FOB Moselle, colheita 26", r"Rapes+ed FOB Moselle[^<]*<[^>]*><[^>]*></td><td[^>]*>([\d.]+)"),
+    ("Trigo duro", "La Pallice, base jul.", r"Durum wheat delivered La Pallice[^<]*<[^>]*><[^>]*></td><td[^>]*>([\d.]+)" + _VAR_TAIL),
+    ("Milho", "Bordeaux, base jul.", r"Corn delivered Bordeaux[^<]*<[^>]*><[^>]*></td><td[^>]*>([\d.]+)" + _VAR_TAIL),
+    ("Colza", "FOB Moselle, colheita 26", r"Rapes+ed FOB Moselle[^<]*<[^>]*><[^>]*></td><td[^>]*>([\d.]+)" + _VAR_TAIL),
 ]
 
 
@@ -170,8 +172,11 @@ def fetch_fisico_agritel(html):
     for name, local, pattern in AGRITEL_PHYSICAL_ROWS:
         m = re.search(pattern, html)
         if m:
-            rows.append({"name": name, "local": local, "value": float(m.group(1))})
-            log(f"  fisico {name} -> {m.group(1)}")
+            row = {"name": name, "local": local, "value": float(m.group(1))}
+            if m.group(2):
+                row["change"] = float(m.group(2))
+            rows.append(row)
+            log(f"  fisico {name} -> {m.group(1)} (change {m.group(2)})")
         else:
             log(f"  fisico {name} NOT FOUND on agritel")
     return rows
@@ -187,12 +192,17 @@ def fetch_fisico_terrenet(html):
     idx = html.find("tendre Rouen")
     if idx < 0:
         return []
-    window = html[idx:idx + 600]
-    m = re.search(r'([\d]+(?:[.,]\d+)?)\s*(?:&#x20AC;|€)\s*/t', window)
+    window = html[idx:idx + 700]
+    m = re.search(
+        r'variation[^>]*>\s*(=|[+-]?[\d.,]+)(?:\s*(?:&#x20AC;|€)\s*/t)?.*?'
+        r'float-end">\s*([\d.,]+)\s*(?:&#x20AC;|€)\s*/t',
+        window, re.S,
+    )
     if m:
-        value = float(m.group(1).replace(",", "."))
-        log(f"  fisico Trigo mole (Rouen/terre-net) -> {value}")
-        return [{"name": "Trigo mole", "local": "Rouen (Terre-net)", "value": value}]
+        change = 0.0 if m.group(1) == "=" else float(m.group(1).replace(",", "."))
+        value = float(m.group(2).replace(",", "."))
+        log(f"  fisico Trigo mole (Rouen/terre-net) -> {value} (change {change})")
+        return [{"name": "Trigo mole", "local": "Rouen (Terre-net)", "value": value, "change": change}]
     return []
 
 
