@@ -823,20 +823,13 @@
     }).join("");
   }
 
-  var SIMA_HISTORY_KEYS = {
-    "Milho Forrageiro": "milho",
-    "Cevada Forrageira": "cevada",
-    "Trigo Mole Forrageiro": "trigoForr",
-    "Trigo Mole Panificável": "trigoPanif"
-  };
-
   function renderSima() {
     var el = document.getElementById("sima-body");
     var rows = state.sima || [];
-    el.innerHTML = rows.map(function (s, idx) {
+    el.innerHTML = rows.map(function (s) {
       var valueCell = (s.value === null || s.value === undefined)
         ? '<td class="value muted-cell">s/ dado</td>'
-        : '<td class="value sima chart-cell">' + fmt2.format(s.value) + rowChartBtn("sima", idx) + "</td>";
+        : '<td class="value sima">' + fmt2.format(s.value) + "</td>";
       return "<tr>" +
         '<td class="crop">' + s.name + "</td>" +
         '<td class="local-cell">' + s.local + "</td>" +
@@ -1028,13 +1021,6 @@
       } else if (board === "euronext") {
         var eu = state.euronext[idx];
         openHistoryModal(eu.name + " " + eu.contract, eu.history, "var(--blue)", fmt2);
-      } else if (board === "sima") {
-        var s = state.sima[idx];
-        var key = SIMA_HISTORY_KEYS[s.name];
-        var hist = (state.simaHistory || [])
-          .filter(function (h) { return h[key] !== null && h[key] !== undefined; })
-          .map(function (h) { return { date: "Sem " + h.week, value: h[key] }; });
-        openHistoryModal(s.name, hist, "var(--sima)", fmt2, 7);
       }
     });
   }
