@@ -587,7 +587,7 @@
       <div class="board-scroll">
         <table class="board-table">
           <thead>
-            <tr><th style="width:26%">Contrato</th><th style="width:19%">$/bu</th><th style="width:17%">Var.</th><th style="width:19%">€/t</th><th style="width:19%">Var.</th></tr>
+            <tr><th style="width:26%">Contrato</th><th style="width:19%">¢/bu</th><th style="width:17%">Var.</th><th style="width:19%">€/t</th><th style="width:19%">Var.</th></tr>
           </thead>
           <tbody id="chicago-body"></tbody>
         </table>
@@ -757,8 +757,8 @@
       var eurTChange = (c.change === null || c.change === undefined) ? null : cbotToEurPerTon(c.change, c.commodity);
       return '<tr class="' + groupClass(state.chicago, idx, "name").trim() + '">' +
         '<td class="crop-stack"><strong>' + c.name + "</strong><span>" + c.contract + "</span></td>" +
-        '<td class="value gold">' + fmt4.format(c.value) + "</td>" +
-        changeBadgeCell(c.change, fmt2) +
+        '<td class="value gold">' + fmt2.format(c.value * 100) + "</td>" +
+        changeBadgeCell(c.change === null || c.change === undefined ? null : c.change * 100, fmt2) +
         '<td class="value chart-cell">' + fmt2.format(eurT) + rowChartBtn("chicago", idx) + "</td>" +
         changeBadgeCell(eurTChange, fmt2) +
         "</tr>";
