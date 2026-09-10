@@ -7,10 +7,19 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   update:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
 
@@ -29,3 +38,13 @@ jobs:
           git add data.json
           git diff --cached --quiet || git commit -m "Update market data"
           git push
+
+      # Commits made with the default GITHUB_TOKEN don't trigger other
+      # workflows (incl. the push-triggered pages.yml), so this job deploys
+      # to Pages itself instead of relying on that push event.
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+      - id: deployment
+        uses: actions/deploy-pages@v4
