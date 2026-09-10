@@ -631,7 +631,7 @@
       <div class="board-scroll">
         <table class="board-table">
           <thead>
-            <tr><th style="width:26%">Cultura</th><th style="width:50%">Praça</th><th style="width:24%">€/t</th></tr>
+            <tr><th style="width:22%">Cultura</th><th style="width:36%">Praça</th><th style="width:21%">€/t</th><th style="width:21%">Var.</th></tr>
           </thead>
           <tbody id="fisico-body"></tbody>
         </table>
@@ -812,6 +812,7 @@
         '<td class="crop">' + f.name + "</td>" +
         '<td class="local-cell">' + f.local + "</td>" +
         valueCell +
+        changeBadgeCell(f.change, fmt2) +
         "</tr>";
     }).join("");
   }
