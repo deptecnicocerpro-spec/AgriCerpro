@@ -1,6 +1,6 @@
 {
-  "updatedAt": "10/09 21:12",
-  "eurusd": 1.1613,
+  "updatedAt": "10/09 21:20",
+  "eurusd": 1.161,
   "chicago": [
     {
       "name": "Milho",
@@ -15452,22 +15452,26 @@
     {
       "name": "Milho",
       "local": "Bordeaux, base jul.",
-      "value": 276.5
+      "value": 276.5,
+      "change": 1.0
     },
     {
       "name": "Trigo mole",
       "local": "Rouen (Terre-net)",
-      "value": 3.0
+      "value": 241.0,
+      "change": -3.0
     },
     {
       "name": "Colza",
       "local": "FOB Moselle, colheita 26",
-      "value": 559.5
+      "value": 559.5,
+      "change": -0.5
     },
     {
       "name": "Trigo duro",
       "local": "La Pallice, base jul.",
-      "value": 260.0
+      "value": 260.0,
+      "change": 0.0
     },
     {
       "name": "Soja",
@@ -16640,11 +16644,11 @@
     },
     {
       "date": "2026-09-10",
-      "value": 1.1613
+      "value": 1.161
     }
   ],
-  "wti": 102.81,
-  "brent": 108.08,
+  "wti": 102.94,
+  "brent": 108.25,
   "wtiHistory": [
     {
       "date": "2025-09-10",
@@ -17652,7 +17656,7 @@
     },
     {
       "date": "2026-09-10",
-      "value": 102.81
+      "value": 102.94
     }
   ],
   "brentHistory": [
@@ -18662,7 +18666,7 @@
     },
     {
       "date": "2026-09-10",
-      "value": 108.08
+      "value": 108.25
     }
   ]
 }
