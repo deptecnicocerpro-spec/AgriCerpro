@@ -313,6 +313,20 @@ def main():
     except Exception as exc:
         log(f"  eurusd FAILED: {exc}")
 
+    log("Fetching WTI/Brent (Yahoo Finance)...")
+    try:
+        wti_price, _, _ = fetch_yahoo_chart("CL=F", range_="5d")
+        data["wti"] = round(wti_price, 2)
+        log(f"  wti -> {data['wti']}")
+    except Exception as exc:
+        log(f"  wti FAILED: {exc}")
+    try:
+        brent_price, _, _ = fetch_yahoo_chart("BZ=F", range_="5d")
+        data["brent"] = round(brent_price, 2)
+        log(f"  brent -> {data['brent']}")
+    except Exception as exc:
+        log(f"  brent FAILED: {exc}")
+
     log("Fetching Euronext + Fisico (agritel.com)...")
     try:
         html = fetch_agritel_html()
