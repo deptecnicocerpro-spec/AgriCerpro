@@ -305,6 +305,21 @@ def sort_euronext(rows):
     return sorted(rows, key=lambda r: (order.get(r["name"], 9), contract_sort_key(r["contract"])))
 
 
+def sort_fisico(rows):
+    order = {
+        "Milho": 0,
+        "Trigo mole": 1,
+        "Trigo duro": 1,
+        "Cevada forrageira": 2,
+        "Cevada cervejeira": 2,
+        "Soja": 3,
+        "Girassol oleico": 4,
+        "Colza": 5,
+        "Ervilha forrageira": 6,
+    }
+    return sorted(rows, key=lambda r: order.get(r["name"], 99))
+
+
 def main():
     try:
         with open(DATA_PATH, "r", encoding="utf-8") as f:
@@ -360,7 +375,7 @@ def main():
             data["euronext"] = sort_euronext(merge_rows(data.get("euronext", []), fresh_euronext, ("name", "contract")))
         fresh_fisico_a = fetch_fisico_agritel(html)
         if fresh_fisico_a:
-            data["fisico"] = merge_rows(data.get("fisico", []), fresh_fisico_a, ("name", "local"))
+            data["fisico"] = sort_fisico(merge_rows(data.get("fisico", []), fresh_fisico_a, ("name", "local")))
     except Exception as exc:
         log(f"  agritel FAILED: {exc}")
 
@@ -369,7 +384,7 @@ def main():
         terrenet_html = fetch_terrenet_html()
         fresh_fisico_t = fetch_fisico_terrenet(terrenet_html)
         if fresh_fisico_t:
-            data["fisico"] = merge_rows(data.get("fisico", []), fresh_fisico_t, ("name", "local"))
+            data["fisico"] = sort_fisico(merge_rows(data.get("fisico", []), fresh_fisico_t, ("name", "local")))
     except Exception as exc:
         log(f"  terre-net FAILED: {exc}")
 
