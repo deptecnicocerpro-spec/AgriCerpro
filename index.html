@@ -653,6 +653,12 @@
           <input id="conv-value" type="number" inputmode="decimal" value="5.3725" min="0" step="any">
         </div>
         <div class="fx-field">
+          <label for="conv-value-cents">¢ por bushel</label>
+          <input id="conv-value-cents" type="number" inputmode="decimal" value="537.25" min="0" step="any">
+        </div>
+      </div>
+      <div class="fx-row">
+        <div class="fx-field">
           <label for="conv-commodity">Produto</label>
           <select id="conv-commodity"></select>
         </div>
@@ -819,7 +825,19 @@
     var eurT = cbotToEurPerTon(val, commodity);
     document.getElementById("conv-result").innerHTML = fmt2.format(eurT) + ' <span>€/t</span>';
     document.getElementById("conv-formula").textContent =
-      "€/t = ($" + val + "/bu × " + FACTORS[commodity] + ") ÷ " + fmt4.format(state.eurusd) + " (EUR/USD)";
+      "€/t = (" + fmt2.format(val * 100) + "¢/bu × " + FACTORS[commodity] + " ÷ 100) ÷ " + fmt4.format(state.eurusd) + " (EUR/USD)";
+  }
+
+  function onDollarInput() {
+    var val = parseFloat(document.getElementById("conv-value").value) || 0;
+    document.getElementById("conv-value-cents").value = Math.round(val * 100 * 100) / 100;
+    renderConverter();
+  }
+
+  function onCentsInput() {
+    var cents = parseFloat(document.getElementById("conv-value-cents").value) || 0;
+    document.getElementById("conv-value").value = Math.round(cents / 100 * 10000) / 10000;
+    renderConverter();
   }
 
   function renderAll() {
@@ -963,7 +981,8 @@
   initBoardTabs();
   initHistoryModal();
 
-  document.getElementById("conv-value").addEventListener("input", renderConverter);
+  document.getElementById("conv-value").addEventListener("input", onDollarInput);
+  document.getElementById("conv-value-cents").addEventListener("input", onCentsInput);
   document.getElementById("conv-commodity").addEventListener("change", renderConverter);
   document.getElementById("refresh-btn").addEventListener("click", loadData);
 
