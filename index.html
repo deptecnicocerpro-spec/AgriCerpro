@@ -546,7 +546,6 @@
   <header class="top">
     <div class="header-row">
       <div class="header-left">
-        <span class="eyebrow">Cereais &amp; oleaginosas · quadro Chicago · Euronext · Físico · SIMA</span>
         <h1>CBOT × Euronext</h1>
         <h1>Físico × SIMA</h1>
         <div class="info-row">
@@ -666,6 +665,29 @@
       <div>
         <div class="fx-result" id="conv-result">—</div>
         <div class="fx-result-note" id="conv-formula"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Conversor €/tonelada → bushel</h2>
+      <span class="exchange-tag blue">Euronext</span>
+    </div>
+    <div class="fx-card">
+      <div class="fx-row">
+        <div class="fx-field">
+          <label for="conv2-value">€ por tonelada</label>
+          <input id="conv2-value" type="number" inputmode="decimal" value="265.00" min="0" step="any">
+        </div>
+        <div class="fx-field">
+          <label for="conv2-commodity">Produto</label>
+          <select id="conv2-commodity"></select>
+        </div>
+      </div>
+      <div>
+        <div class="fx-result" id="conv2-result">—</div>
+        <div class="fx-result-note" id="conv2-formula"></div>
       </div>
     </div>
   </section>
@@ -840,6 +862,26 @@
     renderConverter();
   }
 
+  var COMMODITY_LABELS_EURONEXT = { corn: "Milho", wheat: "Trigo mole" };
+
+  function populateConverter2() {
+    var sel = document.getElementById("conv2-commodity");
+    sel.innerHTML = Object.keys(COMMODITY_LABELS_EURONEXT).map(function (k) {
+      return '<option value="' + k + '">' + COMMODITY_LABELS_EURONEXT[k] + '</option>';
+    }).join("");
+    sel.value = "corn";
+  }
+
+  function renderConverter2() {
+    var val = parseFloat(document.getElementById("conv2-value").value) || 0;
+    var commodity = document.getElementById("conv2-commodity").value;
+    var usdPerBu = (val * state.eurusd) / FACTORS[commodity];
+    var centsPerBu = usdPerBu * 100;
+    document.getElementById("conv2-result").innerHTML = fmt2.format(centsPerBu) + ' <span>¢/bu</span>';
+    document.getElementById("conv2-formula").textContent =
+      "¢/bu = (€" + val + "/t × " + fmt4.format(state.eurusd) + " ÷ " + FACTORS[commodity] + ") × 100 (= " + fmt4.format(usdPerBu) + " $/bu)";
+  }
+
   function renderAll() {
     renderHeader();
     renderChicago();
@@ -847,6 +889,7 @@
     renderFisico();
     renderSima();
     renderConverter();
+    renderConverter2();
   }
 
   function loadData() {
@@ -976,6 +1019,7 @@
   }
 
   populateConverter();
+  populateConverter2();
   renderAll();
   loadData();
   initBoardTabs();
@@ -984,6 +1028,8 @@
   document.getElementById("conv-value").addEventListener("input", onDollarInput);
   document.getElementById("conv-value-cents").addEventListener("input", onCentsInput);
   document.getElementById("conv-commodity").addEventListener("change", renderConverter);
+  document.getElementById("conv2-value").addEventListener("input", renderConverter2);
+  document.getElementById("conv2-commodity").addEventListener("change", renderConverter2);
   document.getElementById("refresh-btn").addEventListener("click", loadData);
 
   // iOS home-screen launches often resume a frozen page instead of doing a
