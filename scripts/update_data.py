@@ -313,17 +313,19 @@ def main():
     except Exception as exc:
         log(f"  eurusd FAILED: {exc}")
 
-    log("Fetching WTI/Brent (Yahoo Finance)...")
+    log("Fetching WTI/Brent + 1y history (Yahoo Finance)...")
     try:
-        wti_price, _, _ = fetch_yahoo_chart("CL=F", range_="5d")
+        wti_price, _, wti_history = fetch_yahoo_chart("CL=F", range_="1y")
         data["wti"] = round(wti_price, 2)
-        log(f"  wti -> {data['wti']}")
+        data["wtiHistory"] = [{"date": h["date"], "value": round(h["value"], 2)} for h in wti_history]
+        log(f"  wti -> {data['wti']}, {len(wti_history)} history points")
     except Exception as exc:
         log(f"  wti FAILED: {exc}")
     try:
-        brent_price, _, _ = fetch_yahoo_chart("BZ=F", range_="5d")
+        brent_price, _, brent_history = fetch_yahoo_chart("BZ=F", range_="1y")
         data["brent"] = round(brent_price, 2)
-        log(f"  brent -> {data['brent']}")
+        data["brentHistory"] = [{"date": h["date"], "value": round(h["value"], 2)} for h in brent_history]
+        log(f"  brent -> {data['brent']}, {len(brent_history)} history points")
     except Exception as exc:
         log(f"  brent FAILED: {exc}")
 
