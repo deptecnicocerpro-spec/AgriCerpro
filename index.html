@@ -563,8 +563,22 @@
                 </svg>
               </button>
             </div>
-            <span class="eurusd-pill"><span>WTI</span> <strong id="wti-value">—</strong> $/b</span>
-            <span class="eurusd-pill"><span>Brent</span> <strong id="brent-value">—</strong> $/b</span>
+            <div class="eurusd-group">
+              <span class="eurusd-pill"><span>WTI</span> <strong id="wti-value">—</strong> $/b</span>
+              <button class="chart-btn" id="wti-chart-btn" type="button" aria-label="Ver gráfico WTI">
+                <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true">
+                  <polyline points="2,15 7,9 11,12 18,4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></polyline>
+                </svg>
+              </button>
+            </div>
+            <div class="eurusd-group">
+              <span class="eurusd-pill"><span>Brent</span> <strong id="brent-value">—</strong> $/b</span>
+              <button class="chart-btn" id="brent-chart-btn" type="button" aria-label="Ver gráfico Brent">
+                <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true">
+                  <polyline points="2,15 7,9 11,12 18,4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></polyline>
+                </svg>
+              </button>
+            </div>
             <button class="ghost" id="refresh-btn" type="button">↻ Atualizar dados</button>
           </div>
         </div>
@@ -713,6 +727,8 @@
     eurusd: 1.16,
     wti: null,
     brent: null,
+    wtiHistory: [],
+    brentHistory: [],
     chicago: [],
     euronext: [],
     fisico: [],
@@ -975,6 +991,12 @@
 
     document.getElementById("eurusd-chart-btn").addEventListener("click", function () {
       openHistoryModal("EUR/USD", state.eurusdHistory, "var(--gold)", fmt4);
+    });
+    document.getElementById("wti-chart-btn").addEventListener("click", function () {
+      openHistoryModal("WTI ($/barril)", state.wtiHistory, "var(--moss)", fmt2);
+    });
+    document.getElementById("brent-chart-btn").addEventListener("click", function () {
+      openHistoryModal("Brent ($/barril)", state.brentHistory, "var(--blue)", fmt2);
     });
 
     document.getElementById("boards-scroller").addEventListener("click", function (e) {
