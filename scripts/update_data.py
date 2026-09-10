@@ -131,6 +131,27 @@ def fetch_agritel_html():
     return r.text
 
 
+AGRITEL_CHART_KEY = "677e9348-833d-4bf2-bc73-b8dfb61e1bb2"
+
+
+def fetch_agritel_chart_history(code, expiry):
+    url = (
+        "https://flux.agritel.com/agritelwebsite/Chart.aspx"
+        f"?KEY={AGRITEL_CHART_KEY}&CODE={code}&EXPIRY={expiry}&FILI=1&TITLE=x"
+    )
+    r = requests.get(url, headers=HEADERS, timeout=20)
+    r.raise_for_status()
+    m = re.search(r"var data=(\[.*?\]);", r.text)
+    if not m:
+        return []
+    points = re.findall(r"Date\.UTC\((\d+),(\d+),(\d+)\),([\d.]+)", m.group(1))
+    history = []
+    for y, mo, d, v in points:
+        date = f"{int(y):04d}-{int(mo) + 1:02d}-{int(d):02d}"
+        history.append({"date": date, "value": float(v)})
+    return history
+
+
 def fetch_euronext(html):
     var_pattern = re.compile(r"id='([A-Z]{3}[A-Z]{3}\d{2})_VAR'[^>]*>([+-]?[\d.]+)")
     changes = {key: float(v) for key, v in var_pattern.findall(html)}
@@ -151,8 +172,14 @@ def fetch_euronext(html):
         change = changes.get(f"{code}{mon}{yy}")
         if change is not None:
             row["change"] = change
+        try:
+            history = fetch_agritel_chart_history(code, f"{mon}{yy}")
+            if history:
+                row["history"] = history[-750:]
+        except Exception as exc:
+            log(f"  euronext {code}{mon}{yy} history FAILED: {exc}")
         rows.append(row)
-        log(f"  euronext {code}{mon}{yy} -> {value} (change {change})")
+        log(f"  euronext {code}{mon}{yy} -> {value} (change {change}, {len(row.get('history', []))} history pts)")
     return rows
 
 
@@ -364,14 +391,15 @@ def main():
         html = fetch_agritel_html()
         fresh_euronext = fetch_euronext(html)
         if fresh_euronext:
-            today_str = today.strftime("%Y-%m-%d")
+            # fetch_euronext already attaches real history (from Agritel's own
+            # chart data) to rows where it succeeded; for rows where that
+            # fetch failed this run, keep whatever history was already stored.
             old_history_by_key = {(r["name"], r["contract"]): r.get("history", []) for r in data.get("euronext", [])}
             for row in fresh_euronext:
-                key = (row["name"], row["contract"])
-                history = list(old_history_by_key.get(key, []))
-                if not history or history[-1]["date"] != today_str:
-                    history.append({"date": today_str, "value": row["value"]})
-                row["history"] = history[-400:]
+                if "history" not in row:
+                    old_history = old_history_by_key.get((row["name"], row["contract"]))
+                    if old_history:
+                        row["history"] = old_history
             data["euronext"] = sort_euronext(merge_rows(data.get("euronext", []), fresh_euronext, ("name", "contract")))
         fresh_fisico_a = fetch_fisico_agritel(html)
         if fresh_fisico_a:
