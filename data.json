@@ -1,6 +1,6 @@
 {
-  "updatedAt": "10/09 21:26",
-  "eurusd": 1.161,
+  "updatedAt": "10/09 21:39",
+  "eurusd": 1.1613,
   "chicago": [
     {
       "name": "Milho",
@@ -15477,6 +15477,36 @@
       "name": "Soja",
       "local": "sem mercado físico FR",
       "value": null
+    },
+    {
+      "name": "Milho",
+      "local": "FOB Rhin, base jul.",
+      "value": 261.0,
+      "change": 1.0
+    },
+    {
+      "name": "Cevada forrageira",
+      "local": "Rouen, base jul.",
+      "value": 219.0,
+      "change": -2.5
+    },
+    {
+      "name": "Cevada cervejeira",
+      "local": "FOB Creil, base jul.",
+      "value": 230.0,
+      "change": -1.0
+    },
+    {
+      "name": "Girassol oleico",
+      "local": "St Nazaire, colheita 26",
+      "value": 600.0,
+      "change": 0.0
+    },
+    {
+      "name": "Ervilha forrageira",
+      "local": "FOB Creil, base ago.",
+      "value": 245.0,
+      "change": -2.0
     }
   ],
   "sima": [
@@ -16644,11 +16674,11 @@
     },
     {
       "date": "2026-09-10",
-      "value": 1.161
+      "value": 1.1613
     }
   ],
-  "wti": 102.87,
-  "brent": 108.17,
+  "wti": 103.12,
+  "brent": 108.42,
   "wtiHistory": [
     {
       "date": "2025-09-10",
@@ -17656,7 +17686,7 @@
     },
     {
       "date": "2026-09-10",
-      "value": 102.87
+      "value": 103.12
     }
   ],
   "brentHistory": [
@@ -18666,7 +18696,7 @@
     },
     {
       "date": "2026-09-10",
-      "value": 108.17
+      "value": 108.42
     }
   ]
 }
