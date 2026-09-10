@@ -163,7 +163,12 @@ _VAR_TAIL = r"</td><td[^>]*>[\d.]*</td><td[^>]*>[\d.]*</td><td[^>]*>[\d.]*</td><
 AGRITEL_PHYSICAL_ROWS = [
     ("Trigo duro", "La Pallice, base jul.", r"Durum wheat delivered La Pallice[^<]*<[^>]*><[^>]*></td><td[^>]*>([\d.]+)" + _VAR_TAIL),
     ("Milho", "Bordeaux, base jul.", r"Corn delivered Bordeaux[^<]*<[^>]*><[^>]*></td><td[^>]*>([\d.]+)" + _VAR_TAIL),
+    ("Milho", "FOB Rhin, base jul.", r"Corn FOB Rhin[^<]*<[^>]*><[^>]*></td><td[^>]*>([\d.]+)" + _VAR_TAIL),
+    ("Cevada forrageira", "Rouen, base jul.", r"Feed barley delivered Rouen[^<]*<[^>]*><[^>]*></td><td[^>]*>([\d.]+)" + _VAR_TAIL),
+    ("Cevada cervejeira", "FOB Creil, base jul.", r"Malting barley FOB Creil[^<]*<[^>]*><[^>]*></td><td[^>]*>([\d.]+)" + _VAR_TAIL),
     ("Colza", "FOB Moselle, colheita 26", r"Rapes+ed FOB Moselle[^<]*<[^>]*><[^>]*></td><td[^>]*>([\d.]+)" + _VAR_TAIL),
+    ("Girassol oleico", "St Nazaire, colheita 26", r"Oleic sunseed delivered St Nazaire[^<]*<[^>]*><[^>]*></td><td[^>]*>([\d.]+)" + _VAR_TAIL),
+    ("Ervilha forrageira", "FOB Creil, base ago.", r"Feed peas FOB Creil[^<]*<[^>]*><[^>]*></td><td[^>]*>([\d.]+)" + _VAR_TAIL),
 ]
 
 
