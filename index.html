@@ -563,6 +563,8 @@
                 </svg>
               </button>
             </div>
+            <span class="eurusd-pill"><span>WTI</span> <strong id="wti-value">—</strong> $/b</span>
+            <span class="eurusd-pill"><span>Brent</span> <strong id="brent-value">—</strong> $/b</span>
             <button class="ghost" id="refresh-btn" type="button">↻ Atualizar dados</button>
           </div>
         </div>
@@ -709,6 +711,8 @@
   var FALLBACK = {
     updatedAt: "—",
     eurusd: 1.16,
+    wti: null,
+    brent: null,
     chicago: [],
     euronext: [],
     fisico: [],
@@ -729,6 +733,8 @@
   function renderHeader() {
     document.getElementById("updated-date").textContent = state.updatedAt;
     document.getElementById("eurusd-value").textContent = fmt4.format(state.eurusd);
+    document.getElementById("wti-value").textContent = (state.wti === null || state.wti === undefined) ? "—" : fmt2.format(state.wti);
+    document.getElementById("brent-value").textContent = (state.brent === null || state.brent === undefined) ? "—" : fmt2.format(state.brent);
   }
 
   function groupClass(rows, idx, key) {
