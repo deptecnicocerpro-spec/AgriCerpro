@@ -522,18 +522,19 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 13px;
-    height: 13px;
+    width: 17px;
+    height: 17px;
     padding: 0;
-    margin-left: 2px;
+    margin-left: 3px;
     vertical-align: middle;
-    background: none;
-    border: none;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 999px;
     color: var(--muted);
     cursor: pointer;
   }
-  .row-chart-btn:hover { color: var(--gold); }
-  .row-chart-btn svg { width: 10px; height: 10px; }
+  .row-chart-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .row-chart-btn svg { width: 9px; height: 9px; }
 </style>
 </head>
 <body>
