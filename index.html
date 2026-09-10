@@ -118,12 +118,18 @@
   }
   .header-logo-wrap {
     flex: 0 0 auto;
+    width: 64px;
+    height: 64px;
     background: #ffffff;
     border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 4px 8px;
+    border-radius: 50%;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
   }
-  .header-logo { display: block; height: 34px; width: auto; }
+  .header-logo { display: block; width: 100%; height: 100%; object-fit: contain; }
 
   .eyebrow {
     font-family: 'IBM Plex Mono', monospace;
@@ -154,6 +160,8 @@
 
   .updated-text { font-size: 12.5px; color: var(--muted); }
   .updated-text strong { color: var(--ink); font-weight: 500; }
+
+  .eurusd-group { display: flex; align-items: center; gap: 6px; }
 
   .eurusd-pill {
     font-family: 'IBM Plex Mono', monospace;
@@ -529,12 +537,14 @@
     </div>
     <div class="updated-row">
       <span class="updated-text">Atualizado <strong id="updated-date">—</strong></span>
-      <span class="eurusd-pill"><span>EUR/USD</span> <strong id="eurusd-value">—</strong></span>
-      <button class="chart-btn" id="eurusd-chart-btn" type="button" aria-label="Ver gráfico EUR/USD">
-        <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true">
-          <polyline points="2,15 7,9 11,12 18,4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></polyline>
-        </svg>
-      </button>
+      <div class="eurusd-group">
+        <span class="eurusd-pill"><span>EUR/USD</span> <strong id="eurusd-value">—</strong></span>
+        <button class="chart-btn" id="eurusd-chart-btn" type="button" aria-label="Ver gráfico EUR/USD">
+          <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true">
+            <polyline points="2,15 7,9 11,12 18,4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></polyline>
+          </svg>
+        </button>
+      </div>
     </div>
     <div class="updated-row">
       <span class="updated-text">1 t milho = 39,368 bu · 1 t trigo/soja = 36,744 bu</span>
