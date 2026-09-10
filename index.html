@@ -934,12 +934,14 @@
   var activeHistory = [];
   var activeColor = "var(--gold)";
   var activeFmt = fmt4;
+  var activeGranularityDays = 1;
 
   function renderHistoryChart(days) {
     var svg = document.getElementById("history-chart-svg");
     var empty = document.getElementById("history-empty");
     var all = activeHistory || [];
-    var rows = days ? all.slice(-days) : all;
+    var points = days ? Math.ceil(days / activeGranularityDays) : all.length;
+    var rows = all.slice(-points);
     if (rows.length < 2) { svg.innerHTML = ""; svg.hidden = true; empty.hidden = false; return; }
     svg.hidden = false; empty.hidden = true;
 
@@ -976,10 +978,11 @@
     svg.innerHTML = parts.join("");
   }
 
-  function openHistoryModal(title, history, color, fmt) {
+  function openHistoryModal(title, history, color, fmt, granularityDays) {
     activeHistory = history || [];
     activeColor = color;
     activeFmt = fmt;
+    activeGranularityDays = granularityDays || 1;
     document.getElementById("history-modal-title").textContent = title;
     document.getElementById("history-modal-overlay").hidden = false;
     var rangeTabs = document.querySelectorAll("#history-range-tabs .range-tab");
@@ -1031,7 +1034,7 @@
         var hist = (state.simaHistory || [])
           .filter(function (h) { return h[key] !== null && h[key] !== undefined; })
           .map(function (h) { return { date: "Sem " + h.week, value: h[key] }; });
-        openHistoryModal(s.name, hist, "var(--sima)", fmt2);
+        openHistoryModal(s.name, hist, "var(--sima)", fmt2, 7);
       }
     });
   }
