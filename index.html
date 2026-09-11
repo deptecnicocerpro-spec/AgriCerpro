@@ -710,17 +710,17 @@
       <div class="fx-row">
         <div class="fx-field">
           <label for="cif-basis">Basis / prémio export. (€/t)</label>
-          <input id="cif-basis" type="number" inputmode="decimal" value="10" step="any">
+          <input id="cif-basis" type="number" inputmode="decimal" value="26" step="any">
         </div>
         <div class="fx-field">
           <label for="cif-freight">Frete marítimo (€/t)</label>
-          <input id="cif-freight" type="number" inputmode="decimal" value="23" step="any">
+          <input id="cif-freight" type="number" inputmode="decimal" value="20" step="any">
         </div>
       </div>
       <div class="fx-row">
         <div class="fx-field">
           <label for="cif-insurance">Seguro marítimo (%)</label>
-          <input id="cif-insurance" type="number" inputmode="decimal" value="0.2" step="any">
+          <input id="cif-insurance" type="number" inputmode="decimal" value="0.25" step="any">
         </div>
         <div class="fx-field">
           <label for="cif-duty">Direitos aduaneiros (€/t)</label>
@@ -730,7 +730,7 @@
       <div class="fx-row">
         <div class="fx-field">
           <label for="cif-port">Custos portuários Lisboa (€/t)</label>
-          <input id="cif-port" type="number" inputmode="decimal" value="8" step="any">
+          <input id="cif-port" type="number" inputmode="decimal" value="6" step="any">
         </div>
         <div class="fx-field">
           <label for="cif-margin">Margem trader (€/t)</label>
@@ -742,7 +742,7 @@
         <div class="fx-result-note" id="cif-formula"></div>
       </div>
     </div>
-    <p class="board-note">Estimativa indicativa a partir do preço CBOT (mês mais próximo) já atualizado automaticamente. Basis, frete, seguro, direitos, custos portuários e margem são valores de referência — ajusta com dados reais de um trader/fretador quando os tiveres.</p>
+    <p class="board-note">Estimativa indicativa a partir do preço CBOT (mês mais próximo) já atualizado automaticamente. Basis (USDA), frete (USDA-AMS GTOR/mercado spot) e direitos (Reg. UE 642/2010, atualmente 0% para milho) são valores de referência de set. 2026, convertidos para €/t — não são atualizados automaticamente. Ajusta todos os campos com dados reais de um trader/fretador quando os tiveres.</p>
   </section>
 
   <details class="install">
