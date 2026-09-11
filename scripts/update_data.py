@@ -9,6 +9,7 @@ Sources:
   - SIMA (Portugal):  regsima.gpp.pt weekly PDF bulletin, direct static path guess by ISO week.
   - MAPA (Espanha):   mapa.gob.es weekly xlsx bulletin, direct static path guess by ISO week.
   - Fretes:           commodityscope.com/freight/grains (live table, Iberia/Europe routes).
+  - Energia PT:       OMIE marginalpdbc daily CSV (MIBEL day-ahead price, Portugal column).
 
 Never wholesale-replaces an array: merges by key, only touching rows it
 actually fetched fresh data for. If a source fails, that section of the
@@ -18,7 +19,7 @@ import io
 import json
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 import requests
@@ -447,6 +448,58 @@ def fetch_freight(html):
     return rows
 
 
+# -------------------------------------------------------------- Energia PT --
+
+def fetch_energy_pt_day(day):
+    date_str = day.strftime("%Y%m%d")
+    url = f"https://www.omie.es/en/file-download?parents%5B0%5D=marginalpdbc&filename=marginalpdbc_{date_str}.1"
+    r = requests.get(url, headers=HEADERS, timeout=20)
+    if r.status_code != 200:
+        return None
+    text = r.content.decode("utf-8", errors="ignore")
+    prices = []
+    for line in text.splitlines():
+        parts = line.split(";")
+        if len(parts) >= 6 and parts[0].strip().isdigit():
+            try:
+                prices.append(float(parts[5]))
+            except ValueError:
+                continue
+    if not prices:
+        return None
+    return round(sum(prices) / len(prices), 2)
+
+
+def fetch_energy_pt(existing_history):
+    lisbon_now = datetime.now(timezone.utc).astimezone(ZoneInfo("Europe/Lisbon"))
+    history = list(existing_history or [])
+    known_dates = {h["date"] for h in history}
+
+    for delta in (0, 1, 2):
+        day = lisbon_now.date() - timedelta(days=delta)
+        date_str = day.strftime("%Y-%m-%d")
+        if delta != 0 and date_str in known_dates:
+            continue
+        try:
+            avg = fetch_energy_pt_day(day)
+        except Exception as exc:
+            log(f"  energy PT {date_str} FAILED: {exc}")
+            continue
+        if avg is None:
+            log(f"  energy PT {date_str}: not published yet")
+            continue
+        history = [h for h in history if h["date"] != date_str] + [{"date": date_str, "value": avg}]
+        log(f"  energy PT {date_str} -> {avg} EUR/MWh")
+
+    if not history:
+        return None, None, None
+    history.sort(key=lambda h: h["date"])
+    history = history[-400:]
+    price = history[-1]["value"]
+    change = round(price - history[-2]["value"], 2) if len(history) >= 2 else None
+    return price, change, history
+
+
 # ------------------------------------------------------------------- Merge --
 
 def merge_rows(existing, fresh, key_fields):
@@ -502,28 +555,46 @@ def main():
 
     log("Fetching EUR/USD + 1y history (Yahoo Finance)...")
     try:
-        eurusd_price, _, eurusd_history = fetch_yahoo_chart("EURUSD=X", range_="1y")
+        eurusd_price, eurusd_change, eurusd_history = fetch_yahoo_chart("EURUSD=X", range_="1y")
         data["eurusd"] = round(eurusd_price, 4)
         data["eurusdHistory"] = eurusd_history
-        log(f"  eurusd -> {data['eurusd']}, {len(eurusd_history)} history points")
+        if eurusd_change is not None:
+            data["eurusdChange"] = round(eurusd_change, 4)
+        log(f"  eurusd -> {data['eurusd']} (change {eurusd_change}), {len(eurusd_history)} history points")
     except Exception as exc:
         log(f"  eurusd FAILED: {exc}")
 
     log("Fetching WTI/Brent + 1y history (Yahoo Finance)...")
     try:
-        wti_price, _, wti_history = fetch_yahoo_chart("CL=F", range_="1y")
+        wti_price, wti_change, wti_history = fetch_yahoo_chart("CL=F", range_="1y")
         data["wti"] = round(wti_price, 2)
         data["wtiHistory"] = [{"date": h["date"], "value": round(h["value"], 2)} for h in wti_history]
-        log(f"  wti -> {data['wti']}, {len(wti_history)} history points")
+        if wti_change is not None:
+            data["wtiChange"] = round(wti_change, 2)
+        log(f"  wti -> {data['wti']} (change {wti_change}), {len(wti_history)} history points")
     except Exception as exc:
         log(f"  wti FAILED: {exc}")
     try:
-        brent_price, _, brent_history = fetch_yahoo_chart("BZ=F", range_="1y")
+        brent_price, brent_change, brent_history = fetch_yahoo_chart("BZ=F", range_="1y")
         data["brent"] = round(brent_price, 2)
         data["brentHistory"] = [{"date": h["date"], "value": round(h["value"], 2)} for h in brent_history]
-        log(f"  brent -> {data['brent']}, {len(brent_history)} history points")
+        if brent_change is not None:
+            data["brentChange"] = round(brent_change, 2)
+        log(f"  brent -> {data['brent']} (change {brent_change}), {len(brent_history)} history points")
     except Exception as exc:
         log(f"  brent FAILED: {exc}")
+
+    log("Fetching Energia PT (OMIE, preço MIBEL day-ahead)...")
+    try:
+        energy_price, energy_change, energy_history = fetch_energy_pt(data.get("energyPTHistory", []))
+        if energy_price is not None:
+            data["energyPT"] = energy_price
+            data["energyPTHistory"] = energy_history
+            if energy_change is not None:
+                data["energyPTChange"] = energy_change
+            log(f"  energyPT -> {energy_price} (change {energy_change}), {len(energy_history)} history points")
+    except Exception as exc:
+        log(f"  energyPT FAILED: {exc}")
 
     log("Fetching Euronext + Fisico (agritel.com)...")
     try:
