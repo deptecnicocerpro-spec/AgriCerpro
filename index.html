@@ -36,6 +36,10 @@
     --crop-colza: #8a3b6b;
     --sima: #1f7a6c;
     --sima-ink: #ffffff;
+    --mapa: #a6412e;
+    --mapa-ink: #ffffff;
+    --freight: #2f7a8f;
+    --freight-ink: #ffffff;
     --shadow: 0 1px 2px rgba(20, 24, 14, 0.06), 0 6px 20px rgba(20, 24, 14, 0.06);
     color-scheme: light;
   }
@@ -62,6 +66,10 @@
       --crop-colza: #c77fae;
       --sima: #4fbfab;
       --sima-ink: #0a2320;
+      --mapa: #e0806c;
+      --mapa-ink: #2a0d07;
+      --freight: #6fc4dc;
+      --freight-ink: #062229;
       --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
     }
   }
@@ -87,6 +95,10 @@
     --crop-colza: #c77fae;
     --sima: #4fbfab;
     --sima-ink: #0a2320;
+    --mapa: #e0806c;
+    --mapa-ink: #2a0d07;
+    --freight: #6fc4dc;
+    --freight-ink: #062229;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
   }
 
@@ -599,6 +611,8 @@
     <button class="board-tab" type="button" style="--tab-color: var(--blue)">Euronext</button>
     <button class="board-tab" type="button" style="--tab-color: var(--moss)">Físico</button>
     <button class="board-tab" type="button" style="--tab-color: var(--sima)">SIMA</button>
+    <button class="board-tab" type="button" style="--tab-color: var(--mapa)">MAPA</button>
+    <button class="board-tab" type="button" style="--tab-color: var(--freight)">Fretes</button>
   </div>
 
   <div class="boards" id="boards-scroller">
@@ -659,6 +673,36 @@
         </table>
       </div>
       <p class="board-note">Cereais importados, cotação semanal — fonte SIMA (GPP) / ACICO.</p>
+    </div>
+
+    <div class="board">
+      <div class="board-head">
+        <h2>MAPA (Espanha)</h2>
+      </div>
+      <div class="board-scroll">
+        <table class="board-table">
+          <thead>
+            <tr><th style="width:40%">Cereal</th><th style="width:33%">€/t</th><th style="width:27%">Var.</th></tr>
+          </thead>
+          <tbody id="mapa-body"></tbody>
+        </table>
+      </div>
+      <p class="board-note">Precios medios nacionales, cotação semanal — fonte MAPA (Ministerio de Agricultura, Pesca y Alimentación), Espanha.</p>
+    </div>
+
+    <div class="board">
+      <div class="board-head">
+        <h2>Fretes Marítimos</h2>
+      </div>
+      <div class="board-scroll">
+        <table class="board-table">
+          <thead>
+            <tr><th style="width:38%">Rota</th><th style="width:27%">Navio</th><th style="width:18%">$/t</th><th style="width:17%">Var.</th></tr>
+          </thead>
+          <tbody id="freight-body"></tbody>
+        </table>
+      </div>
+      <p class="board-note">Fretes marítimos (granéis) para Espanha/Europa — fonte CommodityScope.com; referência para o campo "Frete marítimo" do estimador CIF abaixo (Lisboa tende a ser semelhante ou pouco acima de um porto espanhol próximo).</p>
     </div>
 
   </div>
@@ -757,7 +801,7 @@
     </ol>
   </details>
 
-  <footer>Atualização automática a cada hora em horário de mercado (GitHub Actions) · fontes: Yahoo Finance, Agritel, Terre-net, SIMA/GPP · não é cotação em tempo real</footer>
+  <footer>Atualização automática a cada hora em horário de mercado (GitHub Actions) · fontes: Yahoo Finance, Agritel, Terre-net, SIMA/GPP, MAPA/ES, CommodityScope · não é cotação em tempo real</footer>
 
 </div>
 
@@ -797,7 +841,10 @@
     fisico: [],
     sima: [],
     simaHistory: [],
-    eurusdHistory: []
+    eurusdHistory: [],
+    mapa: [],
+    mapaWeek: null,
+    freight: []
   };
 
   var state = FALLBACK;
@@ -895,6 +942,34 @@
     }).join("");
   }
 
+  function renderMapa() {
+    var el = document.getElementById("mapa-body");
+    var rows = state.mapa || [];
+    el.innerHTML = rows.map(function (m, idx) {
+      var valueCell = (m.value === null || m.value === undefined)
+        ? '<td class="value muted-cell">s/ dado</td>'
+        : '<td class="value chart-cell">' + fmt2.format(m.value) + rowChartBtn("mapa", idx) + "</td>";
+      return "<tr>" +
+        '<td class="crop">' + m.name + "</td>" +
+        valueCell +
+        changeBadgeCell(m.change, fmt2) +
+        "</tr>";
+    }).join("");
+  }
+
+  function renderFreight() {
+    var el = document.getElementById("freight-body");
+    var rows = state.freight || [];
+    el.innerHTML = rows.map(function (f) {
+      return "<tr>" +
+        '<td class="crop-stack"><strong>' + f.origin + "</strong><span>→ " + f.dest + "</span></td>" +
+        '<td class="contract">' + f.vessel + "<br>" + f.date + "</td>" +
+        '<td class="value">$' + fmt2.format(f.value) + "</td>" +
+        changeBadgeCell(f.change, fmt2) +
+        "</tr>";
+    }).join("");
+  }
+
   function populateConverter() {
     var sel = document.getElementById("conv-commodity");
     sel.innerHTML = Object.keys(COMMODITY_LABELS).map(function (k) {
@@ -975,6 +1050,8 @@
     renderEuronext();
     renderFisico();
     renderSima();
+    renderMapa();
+    renderFreight();
     renderConverter();
     renderCif();
   }
@@ -1111,6 +1188,9 @@
       } else if (board === "euronext") {
         var eu = state.euronext[idx];
         openHistoryModal(eu.name + " " + eu.contract, eu.history, "var(--blue)", fmt2);
+      } else if (board === "mapa") {
+        var mp = state.mapa[idx];
+        openHistoryModal(mp.name + " (MAPA, Espanha)", mp.history, "var(--mapa)", fmt2, 7);
       }
     });
   }
