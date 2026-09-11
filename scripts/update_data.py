@@ -7,6 +7,8 @@ Sources:
   - Euronext/MATIF:  agritel.com/en/quotes (server-rendered HTML, ids like EMANOV26_VALUE).
   - Fisico (French cash refs): agritel.com generic price table + terre-net.fr (Ble tendre Rouen).
   - SIMA (Portugal):  regsima.gpp.pt weekly PDF bulletin, direct static path guess by ISO week.
+  - MAPA (Espanha):   mapa.gob.es weekly xlsx bulletin, direct static path guess by ISO week.
+  - Fretes:           commodityscope.com/freight/grains (live table, Iberia/Europe routes).
 
 Never wholesale-replaces an array: merges by key, only touching rows it
 actually fetched fresh data for. If a source fails, that section of the
@@ -313,6 +315,138 @@ def parse_week_dates(text):
     return f"{d1}/{m1}-{d2}/{m2}"
 
 
+# ------------------------------------------------------------------- MAPA --
+
+MAPA_CROPS = [
+    ("Trigo blando (", "Trigo mole"),
+    ("Trigo duro (", "Trigo duro"),
+    ("Cebada pienso (", "Cevada forrageira"),
+    ("Cebada malta (", "Cevada cervejeira"),
+    ("Maíz grano (", "Milho"),
+]
+
+
+def fetch_mapa():
+    try:
+        import openpyxl
+    except ImportError:
+        log("  mapa SKIPPED: openpyxl not installed")
+        return None, None
+
+    today = datetime.now(timezone.utc)
+    iso_year, iso_week, _ = today.isocalendar()
+
+    for week in (iso_week, iso_week - 1, iso_week - 2):
+        if week < 1:
+            continue
+        url = (
+            "https://www.mapa.gob.es/dam/mapa/contenido/estadisticas/temas/"
+            "estadisticas-agrarias/1.economicas/precios-medios/"
+            f"precios_medios_nacionales_{iso_year}-s{week:02d}.xlsx"
+        )
+        try:
+            r = requests.get(url, headers=HEADERS, timeout=25)
+            if r.status_code != 200:
+                log(f"  mapa week {week}: HTTP {r.status_code} (not published yet)")
+                continue
+        except Exception as exc:
+            log(f"  mapa week {week} FAILED: {exc}")
+            continue
+
+        log(f"  mapa week {week}: xlsx found, parsing...")
+        try:
+            wb = openpyxl.load_workbook(io.BytesIO(r.content), data_only=True)
+            ws = wb.active
+            sheet_rows = list(ws.iter_rows(values_only=True))
+        except Exception as exc:
+            log(f"  mapa week {week} PARSE FAILED: {exc}")
+            continue
+
+        crop_series = {}
+        for row in sheet_rows:
+            label = row[2] if len(row) > 2 else None
+            if not isinstance(label, str):
+                continue
+            label = label.strip()
+            for prefix, crop_name in MAPA_CROPS:
+                if label.startswith(prefix):
+                    crop_series[crop_name] = row[3:]
+                    break
+
+        if len(crop_series) != len(MAPA_CROPS):
+            log(f"  mapa week {week}: incomplete extraction ({list(crop_series.keys())}), skipping")
+            continue
+
+        rows_out = []
+        for _, crop_name in MAPA_CROPS:
+            series = crop_series[crop_name]
+            points = [(i + 1, float(v)) for i, v in enumerate(series) if isinstance(v, (int, float))]
+            if not points:
+                continue
+            history = []
+            for wk, val in points:
+                try:
+                    d = datetime.fromisocalendar(iso_year, wk, 1).strftime("%Y-%m-%d")
+                except ValueError:
+                    continue
+                history.append({"date": d, "value": round(val, 2)})
+            row_out = {"name": crop_name, "value": round(points[-1][1], 2), "history": history}
+            if len(points) >= 2:
+                row_out["change"] = round(points[-1][1] - points[-2][1], 2)
+            rows_out.append(row_out)
+
+        log(f"  mapa week {week}: {[(r['name'], r['value']) for r in rows_out]}")
+        return rows_out, week
+
+    return None, None
+
+
+# ----------------------------------------------------------------- Fretes --
+
+FREIGHT_ROUTES = [
+    ("US Gulf", "Espanha", "Panamax", "us-gulf-spain-panamax"),
+    ("US Gulf", "Europa", "Panamax", "us-gulf-europe-panamax"),
+    ("Brasil", "Espanha", "Panamax", "brazil-spain-panamax"),
+    ("Argentina", "Espanha", "Panamax", "argentina-spain-panamax"),
+    ("Ucrânia (M. Negro)", "Leste Espanha", "Panamax", "ukrainian-black-sea-east-spain-panamax"),
+    ("Rússia (M. Negro)", "Leste Espanha", "Panamax", "russian-black-sea-east-spain-panamax"),
+]
+
+
+def fetch_freight_html():
+    r = requests.get("https://commodityscope.com/freight/grains", headers=HEADERS, timeout=20)
+    r.raise_for_status()
+    r.encoding = "utf-8"
+    return r.text
+
+
+def fetch_freight(html):
+    rows = []
+    for origin, dest, vessel, slug in FREIGHT_ROUTES:
+        pattern = (
+            r'href="/freight/grains/' + re.escape(slug) + r'"[^>]*>[^<]*</a><span[^>]*>[^<]*</span></td>'
+            r'<td[^>]*>[^<]*</td><td[^>]*>[^<]*</td>'
+            r'<td[^>]*>\$([\d.]+)</td><td[^>]*>[^<]*</td>'
+            r'<td[^>]*><span[^>]*>([^<]+)</span></td><td[^>]*>([^<]+)</td>'
+        )
+        m = re.search(pattern, html)
+        if not m:
+            log(f"  freight {origin}->{dest} NOT FOUND")
+            continue
+        price_str, change_str, date_str = m.groups()
+        change_str = change_str.strip()
+        change = float(change_str) if re.match(r"^[+-]?[\d.]+$", change_str) else None
+        row = {
+            "origin": origin, "dest": dest, "vessel": vessel,
+            "value": float(price_str), "date": date_str.strip(),
+        }
+        if change is not None:
+            row["change"] = change
+        rows.append(row)
+        log(f"  freight {origin}->{dest} -> {price_str} USD/mt (change {change})")
+    return rows
+
+
 # ------------------------------------------------------------------- Merge --
 
 def merge_rows(existing, fresh, key_fields):
@@ -347,12 +481,17 @@ def sort_fisico(rows):
     return sorted(rows, key=lambda r: order.get(r["name"], 99))
 
 
+def sort_mapa(rows):
+    order = {"Milho": 0, "Trigo mole": 1, "Trigo duro": 1, "Cevada forrageira": 2, "Cevada cervejeira": 2}
+    return sorted(rows, key=lambda r: order.get(r["name"], 99))
+
+
 def main():
     try:
         with open(DATA_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
     except FileNotFoundError:
-        data = {"chicago": [], "euronext": [], "fisico": [], "sima": [], "simaHistory": []}
+        data = {"chicago": [], "euronext": [], "fisico": [], "sima": [], "simaHistory": [], "mapa": [], "freight": []}
 
     today = datetime.now(timezone.utc)
 
@@ -434,6 +573,21 @@ def main():
         history = [h for h in history if h["week"] != week] + [entry]
         history.sort(key=lambda h: h["week"])
         data["simaHistory"] = history[-14:]
+
+    log("Fetching MAPA (mapa.gob.es, precios medios nacionales)...")
+    mapa_rows, mapa_week = fetch_mapa()
+    if mapa_rows:
+        data["mapa"] = sort_mapa(mapa_rows)
+        data["mapaWeek"] = mapa_week
+
+    log("Fetching Fretes marítimos (commodityscope.com)...")
+    try:
+        freight_html = fetch_freight_html()
+        fresh_freight = fetch_freight(freight_html)
+        if fresh_freight:
+            data["freight"] = fresh_freight
+    except Exception as exc:
+        log(f"  freight FAILED: {exc}")
 
     lisbon_now = today.astimezone(ZoneInfo("Europe/Lisbon"))
     data["updatedAt"] = lisbon_now.strftime("%d/%m %H:%M")
