@@ -610,6 +610,15 @@
                 </svg>
               </button>
             </div>
+            <div class="eurusd-group">
+              <span class="eurusd-pill"><span>Gás PT</span> <strong id="gas-value">—</strong> €/MWh</span>
+              <span id="gas-change"></span>
+              <button class="chart-btn" id="gas-chart-btn" type="button" aria-label="Ver gráfico Gás PT">
+                <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true">
+                  <polyline points="2,15 7,9 11,12 18,4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></polyline>
+                </svg>
+              </button>
+            </div>
             <button class="ghost" id="refresh-btn" type="button">↻ Atualizar dados</button>
           </div>
         </div>
@@ -803,7 +812,7 @@
     </div>
   </section>
 
-  <footer>Atualização automática a cada hora em horário de mercado (GitHub Actions) · fontes: Yahoo Finance, Agritel, Terre-net, SIMA/GPP, MAPA/ES, CommodityScope, OMIE · não é cotação em tempo real</footer>
+  <footer>Atualização automática a cada hora em horário de mercado (GitHub Actions) · fontes: Yahoo Finance, Agritel, Terre-net, SIMA/GPP, MAPA/ES, CommodityScope, OMIE, MIBGAS · não é cotação em tempo real</footer>
 
 </div>
 
@@ -852,7 +861,10 @@
     brentChange: null,
     energyPT: null,
     energyPTChange: null,
-    energyPTHistory: []
+    energyPTHistory: [],
+    gasPT: null,
+    gasPTChange: null,
+    gasPTHistory: []
   };
 
   var state = FALLBACK;
@@ -870,10 +882,12 @@
     document.getElementById("wti-value").textContent = (state.wti === null || state.wti === undefined) ? "—" : fmt2.format(state.wti);
     document.getElementById("brent-value").textContent = (state.brent === null || state.brent === undefined) ? "—" : fmt2.format(state.brent);
     document.getElementById("energy-value").textContent = (state.energyPT === null || state.energyPT === undefined) ? "—" : fmt2.format(state.energyPT);
+    document.getElementById("gas-value").textContent = (state.gasPT === null || state.gasPT === undefined) ? "—" : fmt2.format(state.gasPT);
     document.getElementById("eurusd-change").innerHTML = changeBadgeSpan(state.eurusdChange, fmt4);
     document.getElementById("wti-change").innerHTML = changeBadgeSpan(state.wtiChange, fmt2);
     document.getElementById("brent-change").innerHTML = changeBadgeSpan(state.brentChange, fmt2);
     document.getElementById("energy-change").innerHTML = changeBadgeSpan(state.energyPTChange, fmt2);
+    document.getElementById("gas-change").innerHTML = changeBadgeSpan(state.gasPTChange, fmt2);
   }
 
   function groupClass(rows, idx, key) {
@@ -1191,6 +1205,9 @@
     });
     document.getElementById("energy-chart-btn").addEventListener("click", function () {
       openHistoryModal("Eletricidade PT (€/MWh, OMIE)", state.energyPTHistory, "var(--mapa)", fmt2);
+    });
+    document.getElementById("gas-chart-btn").addEventListener("click", function () {
+      openHistoryModal("Gás PT (€/MWh, MIBGAS VTP)", state.gasPTHistory, "var(--freight)", fmt2);
     });
 
     document.getElementById("boards-scroller").addEventListener("click", function (e) {
