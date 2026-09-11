@@ -691,6 +691,60 @@
     </div>
   </section>
 
+  <section>
+    <div class="section-head">
+      <h2>Estimador CIF Porto de Lisboa</h2>
+      <span class="exchange-tag moss">Logística</span>
+    </div>
+    <div class="fx-card">
+      <div class="fx-row">
+        <div class="fx-field">
+          <label for="cif-commodity">Produto</label>
+          <select id="cif-commodity"></select>
+        </div>
+        <div class="fx-field">
+          <label for="cif-base">Preço base CBOT (€/t)</label>
+          <input id="cif-base" type="text" readonly>
+        </div>
+      </div>
+      <div class="fx-row">
+        <div class="fx-field">
+          <label for="cif-basis">Basis / prémio export. (€/t)</label>
+          <input id="cif-basis" type="number" inputmode="decimal" value="10" step="any">
+        </div>
+        <div class="fx-field">
+          <label for="cif-freight">Frete marítimo (€/t)</label>
+          <input id="cif-freight" type="number" inputmode="decimal" value="23" step="any">
+        </div>
+      </div>
+      <div class="fx-row">
+        <div class="fx-field">
+          <label for="cif-insurance">Seguro marítimo (%)</label>
+          <input id="cif-insurance" type="number" inputmode="decimal" value="0.2" step="any">
+        </div>
+        <div class="fx-field">
+          <label for="cif-duty">Direitos aduaneiros (€/t)</label>
+          <input id="cif-duty" type="number" inputmode="decimal" value="0" step="any">
+        </div>
+      </div>
+      <div class="fx-row">
+        <div class="fx-field">
+          <label for="cif-port">Custos portuários Lisboa (€/t)</label>
+          <input id="cif-port" type="number" inputmode="decimal" value="8" step="any">
+        </div>
+        <div class="fx-field">
+          <label for="cif-margin">Margem trader (€/t)</label>
+          <input id="cif-margin" type="number" inputmode="decimal" value="5" step="any">
+        </div>
+      </div>
+      <div>
+        <div class="fx-result" id="cif-result">—</div>
+        <div class="fx-result-note" id="cif-formula"></div>
+      </div>
+    </div>
+    <p class="board-note">Estimativa indicativa a partir do preço CBOT (mês mais próximo) já atualizado automaticamente. Basis, frete, seguro, direitos, custos portuários e margem são valores de referência — ajusta com dados reais de um trader/fretador quando os tiveres.</p>
+  </section>
+
   <details class="install">
     <summary>Como pôr isto no ecrã principal do iPhone</summary>
     <ol>
@@ -881,6 +935,38 @@
     renderConverter();
   }
 
+  function populateCifCommodity() {
+    var sel = document.getElementById("cif-commodity");
+    sel.innerHTML = Object.keys(COMMODITY_LABELS).map(function (k) {
+      return '<option value="' + k + '">' + COMMODITY_LABELS[k] + '</option>';
+    }).join("");
+    sel.value = "corn";
+  }
+
+  function renderCif() {
+    var commodity = document.getElementById("cif-commodity").value;
+    var row = state.chicago.filter(function (c) { return c.commodity === commodity; })[0];
+    var base = row ? cbotToEurPerTon(row.value, commodity) : 0;
+    document.getElementById("cif-base").value = row ? fmt2.format(base) + " (" + row.contract + ")" : "—";
+
+    var basis = parseFloat(document.getElementById("cif-basis").value) || 0;
+    var freight = parseFloat(document.getElementById("cif-freight").value) || 0;
+    var insurancePct = parseFloat(document.getElementById("cif-insurance").value) || 0;
+    var duty = parseFloat(document.getElementById("cif-duty").value) || 0;
+    var port = parseFloat(document.getElementById("cif-port").value) || 0;
+    var margin = parseFloat(document.getElementById("cif-margin").value) || 0;
+
+    var subtotal = base + basis + freight;
+    var insurance = subtotal * (insurancePct / 100);
+    var total = subtotal + insurance + duty + port + margin;
+
+    document.getElementById("cif-result").innerHTML = fmt2.format(total) + ' <span>€/t CIF Lisboa</span>';
+    document.getElementById("cif-formula").textContent =
+      "CIF = base (" + fmt2.format(base) + ") + basis (" + fmt2.format(basis) + ") + frete (" + fmt2.format(freight) +
+      ") + seguro (" + fmt2.format(insurance) + ") + direitos (" + fmt2.format(duty) + ") + portuários (" + fmt2.format(port) +
+      ") + margem (" + fmt2.format(margin) + ")";
+  }
+
   function renderAll() {
     renderHeader();
     renderChicago();
@@ -888,6 +974,7 @@
     renderFisico();
     renderSima();
     renderConverter();
+    renderCif();
   }
 
   function loadData() {
@@ -1027,6 +1114,7 @@
   }
 
   populateConverter();
+  populateCifCommodity();
   renderAll();
   loadData();
   initBoardTabs();
@@ -1034,6 +1122,10 @@
 
   document.getElementById("conv-value").addEventListener("input", renderConverter);
   document.getElementById("conv-commodity").addEventListener("change", renderConverter);
+  ["cif-commodity", "cif-basis", "cif-freight", "cif-insurance", "cif-duty", "cif-port", "cif-margin"].forEach(function (id) {
+    var evt = id === "cif-commodity" ? "change" : "input";
+    document.getElementById(id).addEventListener(evt, renderCif);
+  });
   document.querySelectorAll("#conv-direction-tabs .range-tab").forEach(function (tab) {
     tab.addEventListener("click", function () {
       document.querySelectorAll("#conv-direction-tabs .range-tab").forEach(function (t) { t.classList.remove("active"); });
