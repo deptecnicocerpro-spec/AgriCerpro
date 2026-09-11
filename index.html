@@ -741,6 +741,8 @@
         <div class="fx-result" id="cif-result">—</div>
         <div class="fx-result-note" id="cif-formula"></div>
       </div>
+      <button class="ghost" id="cif-refresh-btn" type="button">↻ Atualizar Valores Logísticos</button>
+      <p class="board-note" id="cif-refresh-note" hidden>Estes valores (basis, frete, seguro, direitos, custos portuários) não têm uma fonte automática — pede aqui na conversa "atualiza os valores logísticos do CIF" e repito a pesquisa manualmente.</p>
     </div>
     <p class="board-note">Estimativa indicativa a partir do preço CBOT (mês mais próximo) já atualizado automaticamente. Basis (USDA), frete (USDA-AMS GTOR/mercado spot) e direitos (Reg. UE 642/2010, atualmente 0% para milho) são valores de referência de set. 2026, convertidos para €/t — não são atualizados automaticamente. Ajusta todos os campos com dados reais de um trader/fretador quando os tiveres.</p>
   </section>
@@ -1134,6 +1136,9 @@
     });
   });
   document.getElementById("refresh-btn").addEventListener("click", loadData);
+  document.getElementById("cif-refresh-btn").addEventListener("click", function () {
+    document.getElementById("cif-refresh-note").hidden = false;
+  });
 
   // iOS home-screen launches often resume a frozen page instead of doing a
   // real reload, so loadData() above never runs again. Force a re-fetch
