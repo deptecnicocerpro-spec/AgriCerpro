@@ -576,6 +576,7 @@
           <div class="info-actions">
             <div class="eurusd-group">
               <span class="eurusd-pill"><span>EUR/USD</span> <strong id="eurusd-value">—</strong></span>
+              <span id="eurusd-change"></span>
               <button class="chart-btn" id="eurusd-chart-btn" type="button" aria-label="Ver gráfico EUR/USD">
                 <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true">
                   <polyline points="2,15 7,9 11,12 18,4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></polyline>
@@ -584,6 +585,7 @@
             </div>
             <div class="eurusd-group">
               <span class="eurusd-pill"><span>WTI</span> <strong id="wti-value">—</strong> $/b</span>
+              <span id="wti-change"></span>
               <button class="chart-btn" id="wti-chart-btn" type="button" aria-label="Ver gráfico WTI">
                 <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true">
                   <polyline points="2,15 7,9 11,12 18,4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></polyline>
@@ -592,7 +594,17 @@
             </div>
             <div class="eurusd-group">
               <span class="eurusd-pill"><span>Brent</span> <strong id="brent-value">—</strong> $/b</span>
+              <span id="brent-change"></span>
               <button class="chart-btn" id="brent-chart-btn" type="button" aria-label="Ver gráfico Brent">
+                <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true">
+                  <polyline points="2,15 7,9 11,12 18,4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></polyline>
+                </svg>
+              </button>
+            </div>
+            <div class="eurusd-group">
+              <span class="eurusd-pill"><span>Eletricidade PT</span> <strong id="energy-value">—</strong> €/MWh</span>
+              <span id="energy-change"></span>
+              <button class="chart-btn" id="energy-chart-btn" type="button" aria-label="Ver gráfico Eletricidade PT">
                 <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true">
                   <polyline points="2,15 7,9 11,12 18,4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></polyline>
                 </svg>
@@ -801,7 +813,7 @@
     </div>
   </section>
 
-  <footer>Atualização automática a cada hora em horário de mercado (GitHub Actions) · fontes: Yahoo Finance, Agritel, Terre-net, SIMA/GPP, MAPA/ES, CommodityScope · não é cotação em tempo real</footer>
+  <footer>Atualização automática a cada hora em horário de mercado (GitHub Actions) · fontes: Yahoo Finance, Agritel, Terre-net, SIMA/GPP, MAPA/ES, CommodityScope, OMIE · não é cotação em tempo real</footer>
 
 </div>
 
@@ -844,7 +856,13 @@
     eurusdHistory: [],
     mapa: [],
     mapaWeek: null,
-    freight: []
+    freight: [],
+    eurusdChange: null,
+    wtiChange: null,
+    brentChange: null,
+    energyPT: null,
+    energyPTChange: null,
+    energyPTHistory: []
   };
 
   var state = FALLBACK;
@@ -861,6 +879,11 @@
     document.getElementById("eurusd-value").textContent = fmt4.format(state.eurusd);
     document.getElementById("wti-value").textContent = (state.wti === null || state.wti === undefined) ? "—" : fmt2.format(state.wti);
     document.getElementById("brent-value").textContent = (state.brent === null || state.brent === undefined) ? "—" : fmt2.format(state.brent);
+    document.getElementById("energy-value").textContent = (state.energyPT === null || state.energyPT === undefined) ? "—" : fmt2.format(state.energyPT);
+    document.getElementById("eurusd-change").innerHTML = changeBadgeSpan(state.eurusdChange, fmt4);
+    document.getElementById("wti-change").innerHTML = changeBadgeSpan(state.wtiChange, fmt2);
+    document.getElementById("brent-change").innerHTML = changeBadgeSpan(state.brentChange, fmt2);
+    document.getElementById("energy-change").innerHTML = changeBadgeSpan(state.energyPTChange, fmt2);
   }
 
   function groupClass(rows, idx, key) {
@@ -1175,6 +1198,9 @@
     });
     document.getElementById("brent-chart-btn").addEventListener("click", function () {
       openHistoryModal("Brent ($/barril)", state.brentHistory, "var(--blue)", fmt2);
+    });
+    document.getElementById("energy-chart-btn").addEventListener("click", function () {
+      openHistoryModal("Eletricidade PT (€/MWh, OMIE)", state.energyPTHistory, "var(--mapa)", fmt2);
     });
 
     document.getElementById("boards-scroller").addEventListener("click", function (e) {
