@@ -10,11 +10,13 @@ Sources:
   - MAPA (Espanha):   mapa.gob.es weekly xlsx bulletin, direct static path guess by ISO week.
   - Fretes:           commodityscope.com/freight/grains (live table, Iberia/Europe routes).
   - Energia PT:       OMIE marginalpdbc daily CSV (MIBEL day-ahead price, Portugal column).
+  - Gas PT:           MIBGAS ajax export CSV (VTP - Portuguese virtual trading point, within-day price).
 
 Never wholesale-replaces an array: merges by key, only touching rows it
 actually fetched fresh data for. If a source fails, that section of the
 board simply keeps its previous value - no fabricated data is written.
 """
+import csv
 import io
 import json
 import re
@@ -500,6 +502,54 @@ def fetch_energy_pt(existing_history):
     return price, change, history
 
 
+# ------------------------------------------------------------------ Gas PT --
+
+def fetch_gas_pt_day(day):
+    date_str = day.strftime("%d/%m/%Y")
+    url = f"https://www.mibgas.es/en/ajax/table/daily-price/vtp/export?date={date_str}"
+    r = requests.get(url, headers=HEADERS, timeout=20)
+    if r.status_code != 200:
+        return None
+    text = r.content.decode("utf-8-sig", errors="ignore")
+    for row in csv.reader(text.splitlines()):
+        if row and row[0] == "Within-day":
+            try:
+                return round(float(row[2].replace(",", ".")), 2)
+            except (ValueError, IndexError):
+                return None
+    return None
+
+
+def fetch_gas_pt(existing_history):
+    lisbon_now = datetime.now(timezone.utc).astimezone(ZoneInfo("Europe/Lisbon"))
+    history = list(existing_history or [])
+    known_dates = {h["date"] for h in history}
+
+    for delta in (0, 1, 2):
+        day = lisbon_now.date() - timedelta(days=delta)
+        date_str = day.strftime("%Y-%m-%d")
+        if delta != 0 and date_str in known_dates:
+            continue
+        try:
+            price = fetch_gas_pt_day(day)
+        except Exception as exc:
+            log(f"  gas PT {date_str} FAILED: {exc}")
+            continue
+        if price is None:
+            log(f"  gas PT {date_str}: not published yet")
+            continue
+        history = [h for h in history if h["date"] != date_str] + [{"date": date_str, "value": price}]
+        log(f"  gas PT {date_str} -> {price} EUR/MWh")
+
+    if not history:
+        return None, None, None
+    history.sort(key=lambda h: h["date"])
+    history = history[-400:]
+    price = history[-1]["value"]
+    change = round(price - history[-2]["value"], 2) if len(history) >= 2 else None
+    return price, change, history
+
+
 # ------------------------------------------------------------------- Merge --
 
 def merge_rows(existing, fresh, key_fields):
@@ -595,6 +645,18 @@ def main():
             log(f"  energyPT -> {energy_price} (change {energy_change}), {len(energy_history)} history points")
     except Exception as exc:
         log(f"  energyPT FAILED: {exc}")
+
+    log("Fetching Gás PT (MIBGAS, VTP within-day)...")
+    try:
+        gas_price, gas_change, gas_history = fetch_gas_pt(data.get("gasPTHistory", []))
+        if gas_price is not None:
+            data["gasPT"] = gas_price
+            data["gasPTHistory"] = gas_history
+            if gas_change is not None:
+                data["gasPTChange"] = gas_change
+            log(f"  gasPT -> {gas_price} (change {gas_change}), {len(gas_history)} history points")
+    except Exception as exc:
+        log(f"  gasPT FAILED: {exc}")
 
     log("Fetching Euronext + Fisico (agritel.com)...")
     try:
