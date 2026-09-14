@@ -180,6 +180,15 @@ def fetch_euronext(html):
         try:
             history = fetch_agritel_chart_history(code, f"{mon}{yy}")
             if history:
+                # Agritel's own chart feed sometimes lags behind its live quote
+                # by a few days (e.g. stuck over a weekend). Since we already
+                # have today's real, freshly-scraped value from the quotes
+                # page above, patch it in as the latest point so the chart
+                # never looks frozen even when the chart feed itself hasn't
+                # caught up yet.
+                today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+                history = [h for h in history if h["date"] != today_str]
+                history.append({"date": today_str, "value": row["value"]})
                 row["history"] = history[-750:]
         except Exception as exc:
             log(f"  euronext {code}{mon}{yy} history FAILED: {exc}")
