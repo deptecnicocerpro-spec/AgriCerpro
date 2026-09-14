@@ -374,6 +374,8 @@
   }
   table.board-table tr:last-child td { border-bottom: none; }
   table.board-table tr.group-start td { border-top: 2px solid var(--muted); }
+  table.board-table tr.reference-row td { border-top: 1px dashed var(--muted); font-style: italic; color: var(--muted); }
+  table.board-table tr.reference-row td.value { color: var(--muted); }
   table.board-table td.crop { text-align: left; color: var(--ink); font-weight: 500; white-space: normal; line-height: 1.3; }
   table.board-table td.crop-stack { line-height: 1.6; }
   table.board-table td.crop-stack strong { display: block; color: var(--ink); font-weight: 500; font-size: 12.5px; }
@@ -723,7 +725,7 @@
           <tbody id="freight-body"></tbody>
         </table>
       </div>
-      <p class="board-note">Fretes marítimos (granéis) para Espanha/Europa — fonte CommodityScope.com; referência para o campo "Frete marítimo" do estimador CIF abaixo (Lisboa tende a ser semelhante ou pouco acima de um porto espanhol próximo).</p>
+      <p class="board-note">Fretes marítimos (granéis) para Espanha/Europa — fonte CommodityScope.com. Não existe índice público específico para o Porto de Lisboa; a última linha (itálico) reutiliza a cotação US Gulf → Europa como referência — o custo do navio é praticamente igual entre portos ibéricos próximos, a diferença está nos custos portuários (já considerados à parte no estimador CIF abaixo).</p>
     </div>
 
   </div>
@@ -988,7 +990,7 @@
     var el = document.getElementById("freight-body");
     var rows = state.freight || [];
     el.innerHTML = rows.map(function (f) {
-      return "<tr>" +
+      return '<tr class="' + (f.reference ? "reference-row" : "") + '">' +
         '<td class="crop-stack"><strong>' + f.origin + "</strong><span>→ " + f.dest + "</span></td>" +
         '<td class="contract">' + f.vessel + "<br>" + f.date + "</td>" +
         '<td class="value">$' + fmt2.format(f.value) + "</td>" +
