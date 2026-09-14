@@ -720,12 +720,12 @@
       <div class="board-scroll">
         <table class="board-table">
           <thead>
-            <tr><th style="width:38%">Rota</th><th style="width:27%">Navio</th><th style="width:18%">$/t</th><th style="width:17%">Var.</th></tr>
+            <tr><th style="width:30%">Rota</th><th style="width:20%">Navio</th><th style="width:16%">$/t</th><th style="width:16%">€/t</th><th style="width:18%">Var.</th></tr>
           </thead>
           <tbody id="freight-body"></tbody>
         </table>
       </div>
-      <p class="board-note">Fretes marítimos (granéis) para Espanha/Europa — fonte CommodityScope.com. Não existe índice público específico para o Porto de Lisboa; a última linha (itálico) reutiliza a cotação US Gulf → Europa como referência — o custo do navio é praticamente igual entre portos ibéricos próximos, a diferença está nos custos portuários (já considerados à parte no estimador CIF abaixo).</p>
+      <p class="board-note">Fretes marítimos (granéis) para Espanha/Europa — fonte CommodityScope.com; €/t convertido à taxa EUR/USD atual (topo da página). Não existe índice público específico para o Porto de Lisboa; a última linha (itálico) reutiliza a cotação US Gulf → Europa como referência — o custo do navio é praticamente igual entre portos ibéricos próximos, a diferença está nos custos portuários (já considerados à parte no estimador CIF abaixo).</p>
     </div>
 
   </div>
@@ -990,10 +990,12 @@
     var el = document.getElementById("freight-body");
     var rows = state.freight || [];
     el.innerHTML = rows.map(function (f) {
+      var eurValue = f.value / state.eurusd;
       return '<tr class="' + (f.reference ? "reference-row" : "") + '">' +
         '<td class="crop-stack"><strong>' + f.origin + "</strong><span>→ " + f.dest + "</span></td>" +
         '<td class="contract">' + f.vessel + "<br>" + f.date + "</td>" +
         '<td class="value">$' + fmt2.format(f.value) + "</td>" +
+        '<td class="value">' + fmt2.format(eurValue) + "</td>" +
         changeBadgeCell(f.change, fmt2) +
         "</tr>";
     }).join("");
