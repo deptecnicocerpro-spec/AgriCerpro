@@ -447,6 +447,22 @@ def fetch_freight(html):
             row["change"] = change
         rows.append(row)
         log(f"  freight {origin}->{dest} -> {price_str} USD/mt (change {change})")
+
+    # No public grain-freight index quotes the Port of Lisbon specifically
+    # (checked commodityscope.com's full route list and the Baltic indices -
+    # neither covers Portugal). Ocean freight cost is essentially the same
+    # for nearby Iberian Atlantic ports; the difference is in port handling
+    # costs, which are handled separately in the CIF estimator below. So we
+    # surface the US Gulf -> Europe quote again, explicitly relabelled as a
+    # reference for Lisbon rather than inventing an independent number.
+    ref = next((r for r in rows if r["origin"] == "US Gulf" and r["dest"] == "Europa"), None)
+    if ref:
+        lisboa_row = dict(ref)
+        lisboa_row["dest"] = "Porto de Lisboa (referência)"
+        lisboa_row["reference"] = True
+        rows.append(lisboa_row)
+        log(f"  freight US Gulf->Porto de Lisboa (referência) -> {ref['value']} USD/mt (copied from Europa quote)")
+
     return rows
 
 
