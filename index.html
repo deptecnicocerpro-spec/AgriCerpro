@@ -1156,7 +1156,8 @@
     rows.forEach(function (r, i) {
       if (i === 0 || i === rows.length - 1 || i % labelStep === 0) {
         var xLabel = /^\d{4}-\d{2}-\d{2}$/.test(r.date) ? r.date.slice(5) : r.date;
-        parts.push('<text x="' + xScale(i) + '" y="' + (H - 5) + '" text-anchor="middle">' + xLabel + '</text>');
+        var anchor = i === 0 ? "start" : (i === rows.length - 1 ? "end" : "middle");
+        parts.push('<text x="' + xScale(i) + '" y="' + (H - 5) + '" text-anchor="' + anchor + '">' + xLabel + '</text>');
       }
     });
 
