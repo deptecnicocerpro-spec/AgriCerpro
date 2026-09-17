@@ -517,16 +517,22 @@ def fetch_riso_latest_pdf_url(listing_html, market_path):
     return "https://www.pno.camcom.it" + href
 
 
+def _riso_iso_date(s):
+    d, m, y = s.replace(".", "/").split("/")
+    return f"{y}-{m}-{d}"
+
+
 def fetch_riso_market(pdf_bytes, section_names):
     import pdfplumber
     rows = []
-    rilevazione_date = None
+    date_prev = date_current = None
     with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
         for page in pdf.pages[:2]:
             text = page.extract_text() or ""
             dates = re.findall(r"\d{2}[/.]\d{2}[/.]\d{4}", text)
-            if dates:
-                rilevazione_date = dates[-1].replace(".", "/")
+            if len(dates) >= 2:
+                date_prev = _riso_iso_date(dates[0])
+                date_current = _riso_iso_date(dates[-1])
             section = None
             for line in text.splitlines():
                 stripped = line.strip()
@@ -549,12 +555,30 @@ def fetch_riso_market(pdf_bytes, section_names):
                     "name": _clean_riso_label(rm.group("label")),
                     "group": "Risoni" if section.upper().startswith("RISON") else "Sottoprodotti",
                 }
+                history = []
+                if min1 is not None and max1 is not None and date_prev:
+                    history.append({"date": date_prev, "value": round((min1 + max1) / 2, 2)})
                 if min2 is not None and max2 is not None:
                     row["value"] = round((min2 + max2) / 2, 2)
-                    if min1 is not None and max1 is not None:
-                        row["change"] = round(row["value"] - (min1 + max1) / 2, 2)
+                    if history:
+                        row["change"] = round(row["value"] - history[-1]["value"], 2)
+                    if date_current:
+                        history.append({"date": date_current, "value": row["value"]})
+                if history:
+                    row["history"] = history
                 rows.append(row)
-    return rows, rilevazione_date
+    return rows, date_current
+
+
+def merge_riso_history(old_rows, new_rows):
+    old_history_by_key = {(r["name"], r["group"]): r.get("history", []) for r in (old_rows or [])}
+    for row in new_rows:
+        merged = {h["date"]: h for h in old_history_by_key.get((row["name"], row["group"]), [])}
+        for h in row.get("history", []):
+            merged[h["date"]] = h
+        if merged:
+            row["history"] = sorted(merged.values(), key=lambda h: h["date"])[-104:]
+    return new_rows
 
 
 def fetch_riso():
@@ -768,10 +792,10 @@ def main():
     try:
         riso = fetch_riso()
         if "Novara" in riso:
-            data["risoNovara"] = riso["Novara"]["rows"]
+            data["risoNovara"] = merge_riso_history(data.get("risoNovara", []), riso["Novara"]["rows"])
             data["risoNovaraDate"] = riso["Novara"]["date"]
         if "Vercelli" in riso:
-            data["risoVercelli"] = riso["Vercelli"]["rows"]
+            data["risoVercelli"] = merge_riso_history(data.get("risoVercelli", []), riso["Vercelli"]["rows"])
             data["risoVercelliDate"] = riso["Vercelli"]["date"]
     except Exception as exc:
         log(f"  riso FAILED: {exc}")
