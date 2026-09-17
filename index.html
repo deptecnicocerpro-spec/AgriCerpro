@@ -828,7 +828,7 @@
       <button class="ghost" id="cif-refresh-btn" type="button">↻ Atualizar Valores Logísticos</button>
       <p class="board-note" id="cif-refresh-note" hidden>Estes valores (basis, frete, seguro, direitos, custos portuários) não têm uma fonte automática — pede aqui na conversa "atualiza os valores logísticos do CIF" e repito a pesquisa manualmente.</p>
     </div>
-    <p class="board-note">Estimativa indicativa a partir do preço CBOT (mês mais próximo) já atualizado automaticamente. Ao mudar de "Produto" (Milho/Trigo/Soja), basis, frete, seguro, direitos e portuários mudam para os valores de referência dessa cultura (set. 2026, USDA/regulamentação UE) — só a margem do trader se mantém, por seres tu a decidi-la. Estes valores não são atualizados automaticamente; ajusta todos os campos com dados reais de um trader/fretador quando os tiveres.</p>
+    <p class="board-note">Estimativa indicativa a partir do preço CBOT (mês mais próximo) já atualizado automaticamente. Ao mudar de "Produto" (Milho/Trigo/Soja), basis, frete, seguro, direitos e portuários mudam para os valores de referência dessa cultura (set. 2026, USDA AMS/GTOR e Reg. UE 642/2010) — só a margem do trader se mantém, por seres tu a decidi-la. Nota sobre o Trigo: os 0€/t de direitos assumem trigo de alta qualidade (proteína ≥14%, especificação EBM/Euronext) — trigo de qualidade inferior só tem 12€/t de direitos dentro de um contingente limitado, e paga a taxa variável cheia fora dele. Estes valores não são atualizados automaticamente; ajusta todos os campos com dados reais de um trader/fretador quando os tiveres.</p>
   </section>
 
   <footer>Atualização automática a cada hora em horário de mercado (GitHub Actions) · fontes: Yahoo Finance, Agritel, Terre-net, SIMA/GPP, MAPA/ES, CommodityScope, OMIE, MIBGAS, Camere di Commercio Novara/Vercelli · não é cotação em tempo real</footer>
@@ -864,8 +864,8 @@
   // do trader fica de fora (é decisão do utilizador, não uma realidade de transporte).
   var CIF_DEFAULTS = {
     corn: { basis: 26, freight: 20, insurance: 0.25, duty: 0, port: 6 },
-    wheat: { basis: 35, freight: 20, insurance: 0.25, duty: 0, port: 6 },
-    soybean: { basis: 45, freight: 22, insurance: 0.25, duty: 0, port: 6 }
+    wheat: { basis: 30, freight: 20, insurance: 0.25, duty: 0, port: 6 },
+    soybean: { basis: 35, freight: 20, insurance: 0.25, duty: 0, port: 6 }
   };
 
   var FALLBACK = {
