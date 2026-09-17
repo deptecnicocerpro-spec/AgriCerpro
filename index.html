@@ -828,7 +828,7 @@
       <button class="ghost" id="cif-refresh-btn" type="button">↻ Atualizar Valores Logísticos</button>
       <p class="board-note" id="cif-refresh-note" hidden>Estes valores (basis, frete, seguro, direitos, custos portuários) não têm uma fonte automática — pede aqui na conversa "atualiza os valores logísticos do CIF" e repito a pesquisa manualmente.</p>
     </div>
-    <p class="board-note">Estimativa indicativa a partir do preço CBOT (mês mais próximo) já atualizado automaticamente. Basis (USDA), frete (USDA-AMS GTOR/mercado spot) e direitos (Reg. UE 642/2010, atualmente 0% para milho) são valores de referência de set. 2026, convertidos para €/t — não são atualizados automaticamente. Ajusta todos os campos com dados reais de um trader/fretador quando os tiveres.</p>
+    <p class="board-note">Estimativa indicativa a partir do preço CBOT (mês mais próximo) já atualizado automaticamente. Ao mudar de "Produto" (Milho/Trigo/Soja), basis, frete, seguro, direitos e portuários mudam para os valores de referência dessa cultura (set. 2026, USDA/regulamentação UE) — só a margem do trader se mantém, por seres tu a decidi-la. Estes valores não são atualizados automaticamente; ajusta todos os campos com dados reais de um trader/fretador quando os tiveres.</p>
   </section>
 
   <footer>Atualização automática a cada hora em horário de mercado (GitHub Actions) · fontes: Yahoo Finance, Agritel, Terre-net, SIMA/GPP, MAPA/ES, CommodityScope, OMIE, MIBGAS, Camere di Commercio Novara/Vercelli · não é cotação em tempo real</footer>
@@ -858,6 +858,15 @@
 
   var FACTORS = { corn: 39.36825, wheat: 36.7437, soybean: 36.7437 };
   var COMMODITY_LABELS = { corn: "Milho", wheat: "Trigo", soybean: "Soja" };
+
+  // Logística por cultura (basis, frete, seguro, direitos, portuários) - valores
+  // de referência de set. 2026, mesma lógica que a original (só milho). Margem
+  // do trader fica de fora (é decisão do utilizador, não uma realidade de transporte).
+  var CIF_DEFAULTS = {
+    corn: { basis: 26, freight: 20, insurance: 0.25, duty: 0, port: 6 },
+    wheat: { basis: 35, freight: 20, insurance: 0.25, duty: 0, port: 6 },
+    soybean: { basis: 45, freight: 22, insurance: 0.25, duty: 0, port: 6 }
+  };
 
   var FALLBACK = {
     updatedAt: "—",
@@ -1043,6 +1052,17 @@
       return '<option value="' + k + '">' + COMMODITY_LABELS[k] + '</option>';
     }).join("");
     sel.value = "corn";
+    applyCifDefaults("corn");
+  }
+
+  function applyCifDefaults(commodity) {
+    var d = CIF_DEFAULTS[commodity];
+    if (!d) return;
+    document.getElementById("cif-basis").value = d.basis;
+    document.getElementById("cif-freight").value = d.freight;
+    document.getElementById("cif-insurance").value = d.insurance;
+    document.getElementById("cif-duty").value = d.duty;
+    document.getElementById("cif-port").value = d.port;
   }
 
   function renderCif() {
@@ -1250,9 +1270,12 @@
   initBoardTabs();
   initHistoryModal();
 
-  ["cif-commodity", "cif-basis", "cif-freight", "cif-insurance", "cif-duty", "cif-port", "cif-margin"].forEach(function (id) {
-    var evt = id === "cif-commodity" ? "change" : "input";
-    document.getElementById(id).addEventListener(evt, renderCif);
+  ["cif-basis", "cif-freight", "cif-insurance", "cif-duty", "cif-port", "cif-margin"].forEach(function (id) {
+    document.getElementById(id).addEventListener("input", renderCif);
+  });
+  document.getElementById("cif-commodity").addEventListener("change", function () {
+    applyCifDefaults(this.value);
+    renderCif();
   });
   document.getElementById("refresh-btn").addEventListener("click", loadData);
   document.getElementById("cif-refresh-btn").addEventListener("click", function () {
