@@ -1049,13 +1049,13 @@
     }).join("");
   }
 
-  function renderRiso(elId, rows) {
+  function renderRiso(elId, boardKey, rows) {
     var el = document.getElementById(elId);
     rows = rows || [];
     el.innerHTML = rows.map(function (r, idx) {
       var valueCell = (r.value === null || r.value === undefined)
         ? '<td class="value muted-cell">s/ dado</td>'
-        : '<td class="value">' + fmt2.format(r.value) + "</td>";
+        : '<td class="value chart-cell">' + fmt2.format(r.value) + rowChartBtn(boardKey, idx) + "</td>";
       return '<tr class="' + groupClass(rows, idx, "group").trim() + '">' +
         '<td class="crop">' + r.name + "</td>" +
         valueCell +
@@ -1146,8 +1146,8 @@
     renderSima();
     renderMapa();
     renderFreight();
-    renderRiso("riso-novara-body", state.risoNovara);
-    renderRiso("riso-vercelli-body", state.risoVercelli);
+    renderRiso("riso-novara-body", "risoNovara", state.risoNovara);
+    renderRiso("riso-vercelli-body", "risoVercelli", state.risoVercelli);
     renderConverter();
     renderCif();
   }
@@ -1304,6 +1304,12 @@
       } else if (board === "mapa") {
         var mp = state.mapa[idx];
         openHistoryModal(mp.name + " (MAPA, Espanha)", mp.history, "var(--mapa)", fmt2, 7);
+      } else if (board === "risoNovara") {
+        var rn = state.risoNovara[idx];
+        openHistoryModal(rn.name + " (Novara)", rn.history, "var(--riso-novara)", fmt2, 7);
+      } else if (board === "risoVercelli") {
+        var rv = state.risoVercelli[idx];
+        openHistoryModal(rv.name + " (Vercelli)", rv.history, "var(--riso-vercelli)", fmt2, 7);
       }
     });
   }
