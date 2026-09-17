@@ -475,6 +475,111 @@ def fetch_freight(html):
     return rows
 
 
+# --------------------------------------------------------------------- Riso --
+
+RISO_ROW_RE = re.compile(
+    r'^(?P<label>.+?)\s+["“ t]\s*'
+    r'(?P<min1>n\.?\s*q\.|[\d]+,[\d]+|-)\s+(?P<max1>n\.?\s*q\.|[\d]+,[\d]+|-)\s+'
+    r'(?P<min2>n\.?\s*q\.|[\d]+,[\d]+|-)\s+(?P<max2>n\.?\s*q\.|[\d]+,[\d]+|-)\s+'
+    r'(?P<varmin>[+-]?[\d]+,[\d]+|-)\s+(?P<varmax>[+-]?[\d]+,[\d]+|-)'
+)
+RISO_STOP_SECTIONS = ["FRUMENTO", "ORZO", "GRANOTURCO", "FIENI", "SOIA", "ALTRI CEREALI", "FARINA DI"]
+
+
+def _clean_riso_label(label):
+    label = re.sub(r"^[-\s]+", "", label)
+    label = re.sub(r"[.…]{2,}", " ", label)
+    label = re.sub(r"[.…]+$", "", label)
+    label = re.sub(r"\s{2,}", " ", label)
+    label = re.sub(r"^(Medio|Lungo A|Lungo B):\s*", "", label)
+    return label.strip()
+
+
+def _parse_riso_num(s):
+    if s is None or "q" in s.lower() or s.strip() == "-":
+        return None
+    return float(s.replace(".", "").replace(",", "."))
+
+
+def fetch_riso_listing_html():
+    r = requests.get("https://www.pno.camcom.it/studi/prezzi/listini-prodotti-agricoli", headers=HEADERS, timeout=20)
+    r.raise_for_status()
+    return r.text
+
+
+def fetch_riso_latest_pdf_url(listing_html, market_path):
+    m = re.search(r'href="([^"]*/' + market_path + r'/[^"]*\.pdf)"', listing_html, re.IGNORECASE)
+    if not m:
+        return None
+    href = m.group(1).replace("&amp;", "&")
+    if href.startswith("http"):
+        return href
+    return "https://www.pno.camcom.it" + href
+
+
+def fetch_riso_market(pdf_bytes, section_names):
+    import pdfplumber
+    rows = []
+    rilevazione_date = None
+    with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
+        for page in pdf.pages[:2]:
+            text = page.extract_text() or ""
+            dates = re.findall(r"\d{2}[/.]\d{2}[/.]\d{4}", text)
+            if dates:
+                rilevazione_date = dates[-1].replace(".", "/")
+            section = None
+            for line in text.splitlines():
+                stripped = line.strip()
+                for sec in section_names:
+                    if stripped.upper().startswith(sec.upper()):
+                        section = sec
+                for stop in RISO_STOP_SECTIONS:
+                    if stripped.upper().startswith(stop.upper()):
+                        section = None
+                if section is None:
+                    continue
+                rm = RISO_ROW_RE.match(line)
+                if not rm:
+                    continue
+                min1 = _parse_riso_num(rm.group("min1"))
+                max1 = _parse_riso_num(rm.group("max1"))
+                min2 = _parse_riso_num(rm.group("min2"))
+                max2 = _parse_riso_num(rm.group("max2"))
+                row = {
+                    "name": _clean_riso_label(rm.group("label")),
+                    "group": "Risoni" if section.upper().startswith("RISON") else "Sottoprodotti",
+                }
+                if min2 is not None and max2 is not None:
+                    row["value"] = round((min2 + max2) / 2, 2)
+                    if min1 is not None and max1 is not None:
+                        row["change"] = round(row["value"] - (min1 + max1) / 2, 2)
+                rows.append(row)
+    return rows, rilevazione_date
+
+
+def fetch_riso():
+    listing_html = fetch_riso_listing_html()
+    result = {}
+    for market, path, section_names in (
+        ("Novara", "Novara", ["RISONI", "ROTTURE E SOTTOPRODOTTI"]),
+        ("Vercelli", "Vercelli", ["RISONI", "SOTTOPRODOTTI"]),
+    ):
+        pdf_url = fetch_riso_latest_pdf_url(listing_html, path)
+        if not pdf_url:
+            log(f"  riso {market}: PDF link NOT FOUND on listing page")
+            continue
+        try:
+            r = requests.get(pdf_url, headers=HEADERS, timeout=25)
+            r.raise_for_status()
+            rows, rilevazione_date = fetch_riso_market(r.content, section_names)
+            result[market] = {"rows": rows, "date": rilevazione_date}
+            log(f"  riso {market} ({rilevazione_date}): {len(rows)} rows, "
+                f"{sum(1 for r in rows if r.get('value') is not None)} with price")
+        except Exception as exc:
+            log(f"  riso {market} FAILED: {exc}")
+    return result
+
+
 # -------------------------------------------------------------- Energia PT --
 
 def fetch_energy_pt_day(day):
@@ -658,6 +763,18 @@ def main():
         log(f"  brent -> {data['brent']} (change {brent_change}), {len(brent_history)} history points")
     except Exception as exc:
         log(f"  brent FAILED: {exc}")
+
+    log("Fetching Riso (Novara/Vercelli, camera di commercio)...")
+    try:
+        riso = fetch_riso()
+        if "Novara" in riso:
+            data["risoNovara"] = riso["Novara"]["rows"]
+            data["risoNovaraDate"] = riso["Novara"]["date"]
+        if "Vercelli" in riso:
+            data["risoVercelli"] = riso["Vercelli"]["rows"]
+            data["risoVercelliDate"] = riso["Vercelli"]["date"]
+    except Exception as exc:
+        log(f"  riso FAILED: {exc}")
 
     log("Fetching Energia PT (OMIE, preço MIBEL day-ahead)...")
     try:
