@@ -161,7 +161,7 @@
     background: #ffffff;
     border: 1px solid var(--line);
     border-radius: 50%;
-    padding: 16px;
+    padding: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -637,7 +637,7 @@
           </div>
         </div>
       </div>
-      <div class="header-logo-wrap"><img src="cerpro-logo.png" alt="CERPRO" class="header-logo"></div>
+      <div class="header-logo-wrap"><img src="partners-logos.png" alt="CERPRO, Torriba, Oparroz" class="header-logo"></div>
     </div>
   </header>
 
@@ -829,33 +829,6 @@
       <p class="board-note" id="cif-refresh-note" hidden>Estes valores (basis, frete, seguro, direitos, custos portuários) não têm uma fonte automática — pede aqui na conversa "atualiza os valores logísticos do CIF" e repito a pesquisa manualmente.</p>
     </div>
     <p class="board-note">Estimativa indicativa a partir do preço CBOT (mês mais próximo) já atualizado automaticamente. Basis (USDA), frete (USDA-AMS GTOR/mercado spot) e direitos (Reg. UE 642/2010, atualmente 0% para milho) são valores de referência de set. 2026, convertidos para €/t — não são atualizados automaticamente. Ajusta todos os campos com dados reais de um trader/fretador quando os tiveres.</p>
-  </section>
-
-  <section>
-    <div class="section-head">
-      <h2>Conversor bushel ⇄ €/tonelada</h2>
-      <span class="exchange-tag gold">CBOT</span>
-    </div>
-    <div class="fx-card">
-      <div class="range-tabs" id="conv-direction-tabs">
-        <button class="range-tab active" type="button" data-dir="toEur">¢/bu → €/t</button>
-        <button class="range-tab" type="button" data-dir="toCents">€/t → ¢/bu</button>
-      </div>
-      <div class="fx-row">
-        <div class="fx-field">
-          <label for="conv-value" id="conv-value-label">¢ por bushel</label>
-          <input id="conv-value" type="number" inputmode="decimal" value="537.25" min="0" step="any">
-        </div>
-        <div class="fx-field">
-          <label for="conv-commodity">Produto</label>
-          <select id="conv-commodity"></select>
-        </div>
-      </div>
-      <div>
-        <div class="fx-result" id="conv-result">—</div>
-        <div class="fx-result-note" id="conv-formula"></div>
-      </div>
-    </div>
   </section>
 
   <footer>Atualização automática a cada hora em horário de mercado (GitHub Actions) · fontes: Yahoo Finance, Agritel, Terre-net, SIMA/GPP, MAPA/ES, CommodityScope, OMIE, MIBGAS, Camere di Commercio Novara/Vercelli · não é cotação em tempo real</footer>
@@ -1064,48 +1037,6 @@
     }).join("");
   }
 
-  function populateConverter() {
-    var sel = document.getElementById("conv-commodity");
-    sel.innerHTML = Object.keys(COMMODITY_LABELS).map(function (k) {
-      return '<option value="' + k + '">' + COMMODITY_LABELS[k] + '</option>';
-    }).join("");
-    sel.value = "corn";
-  }
-
-  var convDirection = "toEur";
-
-  function renderConverter() {
-    var val = parseFloat(document.getElementById("conv-value").value) || 0;
-    var commodity = document.getElementById("conv-commodity").value;
-    var resultEl = document.getElementById("conv-result");
-    var noteEl = document.getElementById("conv-formula");
-    if (convDirection === "toEur") {
-      var eurT = cbotToEurPerTon(val / 100, commodity);
-      resultEl.innerHTML = fmt2.format(eurT) + ' <span>€/t</span>';
-      noteEl.textContent =
-        "€/t = (" + fmt2.format(val) + "¢/bu ÷ 100 × " + FACTORS[commodity] + ") ÷ " + fmt4.format(state.eurusd) + " (EUR/USD)";
-    } else {
-      var centsPerBu = (val * state.eurusd / FACTORS[commodity]) * 100;
-      resultEl.innerHTML = fmt2.format(centsPerBu) + ' <span>¢/bu</span>';
-      noteEl.textContent =
-        "¢/bu = (€" + val + "/t × " + fmt4.format(state.eurusd) + " ÷ " + FACTORS[commodity] + ") × 100";
-    }
-  }
-
-  function setConvDirection(dir) {
-    convDirection = dir;
-    var label = document.getElementById("conv-value-label");
-    var input = document.getElementById("conv-value");
-    if (dir === "toEur") {
-      label.textContent = "¢ por bushel";
-      input.value = 537.25;
-    } else {
-      label.textContent = "€ por tonelada";
-      input.value = 265;
-    }
-    renderConverter();
-  }
-
   function populateCifCommodity() {
     var sel = document.getElementById("cif-commodity");
     sel.innerHTML = Object.keys(COMMODITY_LABELS).map(function (k) {
@@ -1148,7 +1079,6 @@
     renderFreight();
     renderRiso("riso-novara-body", "risoNovara", state.risoNovara);
     renderRiso("riso-vercelli-body", "risoVercelli", state.risoVercelli);
-    renderConverter();
     renderCif();
   }
 
@@ -1314,25 +1244,15 @@
     });
   }
 
-  populateConverter();
   populateCifCommodity();
   renderAll();
   loadData();
   initBoardTabs();
   initHistoryModal();
 
-  document.getElementById("conv-value").addEventListener("input", renderConverter);
-  document.getElementById("conv-commodity").addEventListener("change", renderConverter);
   ["cif-commodity", "cif-basis", "cif-freight", "cif-insurance", "cif-duty", "cif-port", "cif-margin"].forEach(function (id) {
     var evt = id === "cif-commodity" ? "change" : "input";
     document.getElementById(id).addEventListener(evt, renderCif);
-  });
-  document.querySelectorAll("#conv-direction-tabs .range-tab").forEach(function (tab) {
-    tab.addEventListener("click", function () {
-      document.querySelectorAll("#conv-direction-tabs .range-tab").forEach(function (t) { t.classList.remove("active"); });
-      tab.classList.add("active");
-      setConvDirection(tab.dataset.dir);
-    });
   });
   document.getElementById("refresh-btn").addEventListener("click", loadData);
   document.getElementById("cif-refresh-btn").addEventListener("click", function () {
