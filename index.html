@@ -40,6 +40,10 @@
     --mapa-ink: #ffffff;
     --freight: #2f7a8f;
     --freight-ink: #ffffff;
+    --riso-novara: #6b4c9a;
+    --riso-novara-ink: #ffffff;
+    --riso-vercelli: #9a3d6b;
+    --riso-vercelli-ink: #ffffff;
     --shadow: 0 1px 2px rgba(20, 24, 14, 0.06), 0 6px 20px rgba(20, 24, 14, 0.06);
     color-scheme: light;
   }
@@ -70,6 +74,10 @@
       --mapa-ink: #2a0d07;
       --freight: #6fc4dc;
       --freight-ink: #062229;
+      --riso-novara: #b899e0;
+      --riso-novara-ink: #241a33;
+      --riso-vercelli: #e0a0c0;
+      --riso-vercelli-ink: #330a1f;
       --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
     }
   }
@@ -99,6 +107,10 @@
     --mapa-ink: #2a0d07;
     --freight: #6fc4dc;
     --freight-ink: #062229;
+    --riso-novara: #b899e0;
+    --riso-novara-ink: #241a33;
+    --riso-vercelli: #e0a0c0;
+    --riso-vercelli-ink: #330a1f;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
   }
 
@@ -636,6 +648,8 @@
     <button class="board-tab" type="button" style="--tab-color: var(--sima)">SIMA</button>
     <button class="board-tab" type="button" style="--tab-color: var(--mapa)">MAPA</button>
     <button class="board-tab" type="button" style="--tab-color: var(--freight)">Fretes</button>
+    <button class="board-tab" type="button" style="--tab-color: var(--riso-novara)">Novara</button>
+    <button class="board-tab" type="button" style="--tab-color: var(--riso-vercelli)">Vercelli</button>
   </div>
 
   <div class="boards" id="boards-scroller">
@@ -728,6 +742,36 @@
       <p class="board-note">Fretes marítimos (granéis) para Espanha/Europa — fonte CommodityScope.com; €/t convertido à taxa EUR/USD atual (topo da página). Não existe índice público específico para o Porto de Lisboa; a última linha (itálico) reutiliza a cotação US Gulf → Europa como referência — o custo do navio é praticamente igual entre portos ibéricos próximos, a diferença está nos custos portuários (já considerados à parte no estimador CIF abaixo).</p>
     </div>
 
+    <div class="board">
+      <div class="board-head">
+        <h2>Mercado Novara</h2>
+      </div>
+      <div class="board-scroll">
+        <table class="board-table">
+          <thead>
+            <tr><th style="width:52%">Produto</th><th style="width:28%">€/t</th><th style="width:20%">Var.</th></tr>
+          </thead>
+          <tbody id="riso-novara-body"></tbody>
+        </table>
+      </div>
+      <p class="board-note">Risoni (arroz em casca) e subprodutos, praça de Novara — fonte Camera di Commercio Piemonte Nord Est. Valor = ponto médio do intervalo mín./máx. semanal publicado. Muitas variedades de risoni aparecem "s/ dado" (n.q. = não cotado) fora de época — normal antes da nova colheita (set./out.) ganhar liquidez.</p>
+    </div>
+
+    <div class="board">
+      <div class="board-head">
+        <h2>Mercado Vercelli</h2>
+      </div>
+      <div class="board-scroll">
+        <table class="board-table">
+          <thead>
+            <tr><th style="width:52%">Produto</th><th style="width:28%">€/t</th><th style="width:20%">Var.</th></tr>
+          </thead>
+          <tbody id="riso-vercelli-body"></tbody>
+        </table>
+      </div>
+      <p class="board-note">Risoni (arroz em casca) e subprodutos, Borsa Merci di Vercelli — fonte Camera di Commercio Monte Rosa Laghi Alto Piemonte. Valor = ponto médio do intervalo mín./máx. semanal publicado. Muitas variedades de risoni aparecem "s/ dado" (n.q. = não cotado) fora de época.</p>
+    </div>
+
   </div>
 
 
@@ -814,7 +858,7 @@
     </div>
   </section>
 
-  <footer>Atualização automática a cada hora em horário de mercado (GitHub Actions) · fontes: Yahoo Finance, Agritel, Terre-net, SIMA/GPP, MAPA/ES, CommodityScope, OMIE, MIBGAS · não é cotação em tempo real</footer>
+  <footer>Atualização automática a cada hora em horário de mercado (GitHub Actions) · fontes: Yahoo Finance, Agritel, Terre-net, SIMA/GPP, MAPA/ES, CommodityScope, OMIE, MIBGAS, Camere di Commercio Novara/Vercelli · não é cotação em tempo real</footer>
 
 </div>
 
@@ -858,6 +902,10 @@
     mapa: [],
     mapaWeek: null,
     freight: [],
+    risoNovara: [],
+    risoNovaraDate: null,
+    risoVercelli: [],
+    risoVercelliDate: null,
     eurusdChange: null,
     wtiChange: null,
     brentChange: null,
@@ -1001,6 +1049,21 @@
     }).join("");
   }
 
+  function renderRiso(elId, rows) {
+    var el = document.getElementById(elId);
+    rows = rows || [];
+    el.innerHTML = rows.map(function (r, idx) {
+      var valueCell = (r.value === null || r.value === undefined)
+        ? '<td class="value muted-cell">s/ dado</td>'
+        : '<td class="value">' + fmt2.format(r.value) + "</td>";
+      return '<tr class="' + groupClass(rows, idx, "group").trim() + '">' +
+        '<td class="crop">' + r.name + "</td>" +
+        valueCell +
+        changeBadgeCell(r.change, fmt2) +
+        "</tr>";
+    }).join("");
+  }
+
   function populateConverter() {
     var sel = document.getElementById("conv-commodity");
     sel.innerHTML = Object.keys(COMMODITY_LABELS).map(function (k) {
@@ -1083,6 +1146,8 @@
     renderSima();
     renderMapa();
     renderFreight();
+    renderRiso("riso-novara-body", state.risoNovara);
+    renderRiso("riso-vercelli-body", state.risoVercelli);
     renderConverter();
     renderCif();
   }
