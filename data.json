@@ -1,6 +1,6 @@
 {
-  "updatedAt": "22/09 22:41",
-  "eurusd": 1.1455,
+  "updatedAt": "22/09 22:46",
+  "eurusd": 1.1453,
   "chicago": [
     {
       "name": "Milho",
@@ -47298,7 +47298,7 @@
     },
     {
       "date": "2026-09-22",
-      "value": 1.1455
+      "value": 1.1453
     }
   ],
   "wti": 89.85,
@@ -50140,7 +50140,7 @@
       "reference": true
     }
   ],
-  "eurusdChange": -0.001,
+  "eurusdChange": -0.0012,
   "wtiChange": -5.93,
   "brentChange": -1.69,
   "energyPT": 156.02,
