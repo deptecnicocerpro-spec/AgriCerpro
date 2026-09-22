@@ -604,6 +604,81 @@ def fetch_riso():
     return result
 
 
+# ------------------------------------------------------------- Tarragona ----
+
+BARCELONA_ROWS = [
+    ("Milho", "Nacional (disponível)", "Maíz", "Disponible s/c/d"),
+    ("Milho importado", "Tarragona (disponível)", "Maíz importación", "Disponible s/c/o Tarragona"),
+    ("Milho importado", "Tarragona (out-dez)", "Maíz importación", "Octubre-Diciembre s/c/o Tarragona"),
+    ("Trigo mole panificável", "Nacional (disponível)", "Trigo panificable", "Disponible s/c/d"),
+    ("Trigo forrageiro", "Nacional (disponível)", "Trigo forrajero", "Disponible s/c/d"),
+    ("Trigo forrageiro", "Tarragona (disponível)", "Trigo forrajero", "Disponible s/c/o Tarragona"),
+    ("Cevada", "Nacional (disponível)", "Cebada", "Disponible s/c/d"),
+    ("Cevada", "Barcelona (disponível)", "Cebada", "Disponible s/c/o Barcelona"),
+]
+
+
+def _parse_barcelona_rows(text):
+    rows = []
+    for name, local, crop_start, suffix in BARCELONA_ROWS:
+        pattern = re.escape(crop_start) + r"[^\n]*?" + re.escape(suffix) + r"\s+([\d.]+,\d{2}|s/c)\s+([+-]?[\d.]+,\d{2}|s/c)"
+        m = re.search(pattern, text)
+        if not m:
+            log(f"  barcelona {name} ({local}) NOT FOUND")
+            continue
+        price_str, change_str = m.groups()
+        value = None if price_str == "s/c" else float(price_str.replace(".", "").replace(",", "."))
+        change = None if change_str == "s/c" else float(change_str.replace(".", "").replace(",", "."))
+        row = {"name": name, "local": local}
+        if value is not None:
+            row["value"] = value
+        if change is not None:
+            row["change"] = change
+        rows.append(row)
+        log(f"  barcelona {name} ({local}) -> {value} (change {change})")
+    return rows
+
+
+def fetch_barcelona():
+    import pdfplumber
+    today = datetime.now(timezone.utc)
+    iso_year, iso_week, _ = today.isocalendar()
+
+    for week in (iso_week, iso_week - 1, iso_week - 2):
+        if week < 1:
+            continue
+        try:
+            tuesday = datetime.fromisocalendar(iso_year, week, 2)
+        except ValueError:
+            continue
+        url = (
+            f"https://www.llotjadecereals.com/wp-content/uploads/"
+            f"{iso_year}/{tuesday.month:02d}/Preus-{week}_{iso_year}.pdf"
+        )
+        try:
+            r = requests.get(url, headers=HEADERS, timeout=25)
+            if r.status_code != 200:
+                log(f"  barcelona week {week}: HTTP {r.status_code} (not published yet)")
+                continue
+        except Exception as exc:
+            log(f"  barcelona week {week} FAILED: {exc}")
+            continue
+
+        log(f"  barcelona week {week}: PDF found, parsing...")
+        try:
+            with pdfplumber.open(io.BytesIO(r.content)) as pdf:
+                text = pdf.pages[0].extract_text() or ""
+        except Exception as exc:
+            log(f"  barcelona week {week} PARSE FAILED: {exc}")
+            continue
+
+        rows = _parse_barcelona_rows(text)
+        if rows:
+            return rows, tuesday.strftime("%Y-%m-%d")
+
+    return None, None
+
+
 # -------------------------------------------------------------- Energia PT --
 
 def fetch_energy_pt_day(day):
@@ -799,6 +874,15 @@ def main():
             data["risoVercelliDate"] = riso["Vercelli"]["date"]
     except Exception as exc:
         log(f"  riso FAILED: {exc}")
+
+    log("Fetching Tarragona/Barcelona (Llotja de Cereals)...")
+    try:
+        barcelona_rows, barcelona_date = fetch_barcelona()
+        if barcelona_rows:
+            data["barcelona"] = barcelona_rows
+            data["barcelonaDate"] = barcelona_date
+    except Exception as exc:
+        log(f"  barcelona FAILED: {exc}")
 
     log("Fetching Energia PT (OMIE, preço MIBEL day-ahead)...")
     try:
