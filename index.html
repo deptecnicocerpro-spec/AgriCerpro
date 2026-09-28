@@ -345,6 +345,14 @@
     font-size: 15.5px;
     margin: 0;
   }
+  .board-date {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    color: var(--muted);
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
 
   .exchange-tag {
     font-family: 'Roboto Mono', monospace;
@@ -665,6 +673,7 @@
     <div class="board">
       <div class="board-head">
         <h2>Chicago (CBOT)</h2>
+        <span class="board-date" id="chicago-date">—</span>
       </div>
       <div class="board-scroll">
         <table class="board-table">
@@ -679,6 +688,7 @@
     <div class="board">
       <div class="board-head">
         <h2>Euronext / MATIF</h2>
+        <span class="board-date" id="euronext-date">—</span>
       </div>
       <div class="board-scroll">
         <table class="board-table">
@@ -693,6 +703,7 @@
     <div class="board">
       <div class="board-head">
         <h2>Físico</h2>
+        <span class="board-date" id="fisico-date">—</span>
       </div>
       <div class="board-scroll">
         <table class="board-table">
@@ -708,6 +719,7 @@
     <div class="board">
       <div class="board-head">
         <h2>SIMA (Portugal)</h2>
+        <span class="board-date" id="sima-date">—</span>
       </div>
       <div class="board-scroll">
         <table class="board-table">
@@ -723,6 +735,7 @@
     <div class="board">
       <div class="board-head">
         <h2>MAPA (Espanha)</h2>
+        <span class="board-date" id="mapa-date">—</span>
       </div>
       <div class="board-scroll">
         <table class="board-table">
@@ -738,6 +751,7 @@
     <div class="board">
       <div class="board-head">
         <h2>Tarragona / Barcelona</h2>
+        <span class="board-date" id="barcelona-date">—</span>
       </div>
       <div class="board-scroll">
         <table class="board-table">
@@ -753,6 +767,7 @@
     <div class="board">
       <div class="board-head">
         <h2>Fretes Marítimos</h2>
+        <span class="board-date" id="freight-date">—</span>
       </div>
       <div class="board-scroll">
         <table class="board-table">
@@ -768,6 +783,7 @@
     <div class="board">
       <div class="board-head">
         <h2>Mercado Novara</h2>
+        <span class="board-date" id="riso-novara-date">—</span>
       </div>
       <div class="board-scroll">
         <table class="board-table">
@@ -783,6 +799,7 @@
     <div class="board">
       <div class="board-head">
         <h2>Mercado Vercelli</h2>
+        <span class="board-date" id="riso-vercelli-date">—</span>
       </div>
       <div class="board-scroll">
         <table class="board-table">
@@ -1130,6 +1147,43 @@
       ") + margem (" + fmt2.format(margin) + ")";
   }
 
+  function shortDate(iso) {
+    if (!iso) return "—";
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+    return m ? m[3] + "/" + m[2] : iso;
+  }
+
+  function latestHistoryDate(rows) {
+    var best = null;
+    (rows || []).forEach(function (r) {
+      var h = r.history;
+      if (h && h.length) {
+        var d = h[h.length - 1].date;
+        if (!best || d > best) best = d;
+      }
+    });
+    return best;
+  }
+
+  function setBoardDate(id, text) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = text;
+  }
+
+  function renderBoardDates() {
+    setBoardDate("chicago-date", shortDate(latestHistoryDate(state.chicago)));
+    setBoardDate("euronext-date", shortDate(latestHistoryDate(state.euronext)));
+    setBoardDate("fisico-date", (state.updatedAt || "—").split(" ")[0]);
+    var simaLocal = (state.sima && state.sima[0] && state.sima[0].local) || "";
+    var simaWeek = /sem\.\s*(\d+)/.exec(simaLocal);
+    setBoardDate("sima-date", simaWeek ? "Sem. " + simaWeek[1] : "—");
+    setBoardDate("mapa-date", state.mapaWeek ? "Sem. " + state.mapaWeek : "—");
+    setBoardDate("barcelona-date", shortDate(state.barcelonaDate));
+    setBoardDate("freight-date", (state.freight && state.freight[0] && state.freight[0].date) || "—");
+    setBoardDate("riso-novara-date", shortDate(state.risoNovaraDate));
+    setBoardDate("riso-vercelli-date", shortDate(state.risoVercelliDate));
+  }
+
   function renderAll() {
     renderHeader();
     renderChicago();
@@ -1141,6 +1195,7 @@
     renderRiso("riso-novara-body", "risoNovara", state.risoNovara);
     renderRiso("riso-vercelli-body", "risoVercelli", state.risoVercelli);
     renderBarcelona();
+    renderBoardDates();
     renderCif();
   }
 
