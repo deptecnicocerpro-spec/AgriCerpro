@@ -212,6 +212,9 @@
 
   .updated-text { font-size: 12.5px; color: var(--muted); }
   .updated-text strong { color: var(--ink); font-weight: 500; }
+  .updated-text strong.stale { color: var(--bad); }
+  #updated-relative { font-style: italic; }
+  #updated-relative.stale { color: var(--bad); font-weight: 600; font-style: normal; }
 
   .eurusd-group { display: flex; align-items: center; gap: 6px; }
   @media (min-width: 681px) {
@@ -599,7 +602,7 @@
         <h1>Físico × SIMA</h1>
         <div class="info-row">
           <div class="info-labels">
-            <span class="updated-text">Atualizado <strong id="updated-date">—</strong></span>
+            <span class="updated-text">Atualizado <strong id="updated-date">—</strong> <span id="updated-relative"></span></span>
             <span class="updated-text">1 t milho = 39,368 bu · 1 t trigo/soja = 36,744 bu</span>
           </div>
           <div class="info-actions">
@@ -878,7 +881,10 @@
 <div class="modal-overlay" id="history-modal-overlay" hidden>
   <div class="modal-card">
     <div class="modal-head">
-      <h2 id="history-modal-title">—</h2>
+      <div>
+        <h2 id="history-modal-title">—</h2>
+        <span class="board-date" id="history-modal-date"></span>
+      </div>
       <button class="modal-close" id="history-modal-close" type="button" aria-label="Fechar">✕</button>
     </div>
     <div class="range-tabs" id="history-range-tabs">
@@ -950,8 +956,43 @@
     return (value * FACTORS[commodity]) / state.eurusd;
   }
 
+  var STALE_MINUTES = 90;
+
+  function parseUpdatedAt(s) {
+    var m = /^(\d{2})\/(\d{2}) (\d{2}):(\d{2})$/.exec(s || "");
+    if (!m) return null;
+    var now = new Date();
+    var d = new Date(now.getFullYear(), parseInt(m[2], 10) - 1, parseInt(m[1], 10), parseInt(m[3], 10), parseInt(m[4], 10));
+    if (d.getTime() > now.getTime() + 6 * 3600 * 1000) d.setFullYear(d.getFullYear() - 1);
+    return d;
+  }
+
+  function isMarketHoursUTC() {
+    var now = new Date();
+    var day = now.getUTCDay(); // 0 = Sun ... 6 = Sat
+    var hour = now.getUTCHours();
+    return day >= 1 && day <= 5 && hour >= 6 && hour < 20;
+  }
+
+  function renderRelativeTime() {
+    var d = parseUpdatedAt(state.updatedAt);
+    var relEl = document.getElementById("updated-relative");
+    var dateEl = document.getElementById("updated-date");
+    if (!d) { relEl.textContent = ""; return; }
+    var mins = Math.max(0, Math.round((Date.now() - d.getTime()) / 60000));
+    var text = mins < 1 ? "agora mesmo" : mins < 60 ? "há " + mins + " min" : "há " + Math.round(mins / 60) + "h";
+    // Outside weekday market hours (evenings, weekends) data is expected to
+    // sit unchanged for a long time - only flag staleness as a real problem
+    // during the window the pipeline is actually supposed to be running in.
+    var stale = isMarketHoursUTC() && mins > STALE_MINUTES;
+    relEl.textContent = "(" + text + (stale ? " — verificar" : "") + ")";
+    relEl.classList.toggle("stale", stale);
+    dateEl.classList.toggle("stale", stale);
+  }
+
   function renderHeader() {
     document.getElementById("updated-date").textContent = state.updatedAt;
+    renderRelativeTime();
     document.getElementById("eurusd-value").textContent = fmt4.format(state.eurusd);
     document.getElementById("wti-value").textContent = (state.wti === null || state.wti === undefined) ? "—" : fmt2.format(state.wti);
     document.getElementById("brent-value").textContent = (state.brent === null || state.brent === undefined) ? "—" : fmt2.format(state.brent);
@@ -1298,6 +1339,8 @@
     activeFmt = fmt;
     activeGranularityDays = granularityDays || 1;
     document.getElementById("history-modal-title").textContent = title;
+    var lastDate = activeHistory.length ? activeHistory[activeHistory.length - 1].date : null;
+    document.getElementById("history-modal-date").textContent = lastDate ? "Última atualização: " + shortDate(lastDate) : "";
     document.getElementById("history-modal-overlay").hidden = false;
     var rangeTabs = document.querySelectorAll("#history-range-tabs .range-tab");
     var active = document.querySelector("#history-range-tabs .range-tab.active") || rangeTabs[rangeTabs.length - 1];
@@ -1386,6 +1429,13 @@
   document.addEventListener("visibilitychange", function () {
     if (!document.hidden) loadData();
   });
+
+  // For continuous on-screen use (left open on a phone), don't rely on the
+  // user backgrounding/foregrounding the app to trigger a refresh - poll
+  // data.json on its own while visible, and keep the "há X min" label
+  // ticking between fetches so staleness is never ambiguous.
+  setInterval(function () { if (!document.hidden) loadData(); }, 3 * 60 * 1000);
+  setInterval(renderRelativeTime, 30 * 1000);
 })();
 </script>
 </body>
