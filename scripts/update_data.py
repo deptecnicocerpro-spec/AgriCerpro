@@ -348,7 +348,10 @@ def fetch_mapa():
     today = datetime.now(timezone.utc)
     iso_year, iso_week, _ = today.isocalendar()
 
-    for week in (iso_week, iso_week - 1, iso_week - 2):
+    # MAPA has occasionally gone 3-4 weeks between publications (not just the
+    # usual 1-week lag other sources have), so look back further than a
+    # narrow 2-week window before giving up for this run.
+    for week in range(iso_week, iso_week - 6, -1):
         if week < 1:
             continue
         url = (
@@ -614,7 +617,6 @@ BARCELONA_ROWS = [
     ("Trigo forrageiro", "Nacional (disponível)", "Trigo forrajero", "Disponible s/c/d"),
     ("Trigo forrageiro", "Tarragona (disponível)", "Trigo forrajero", "Disponible s/c/o Tarragona"),
     ("Cevada", "Nacional (disponível)", "Cebada", "Disponible s/c/d"),
-    ("Cevada", "Barcelona (disponível)", "Cebada", "Disponible s/c/o Barcelona"),
 ]
 
 
@@ -636,6 +638,26 @@ def _parse_barcelona_rows(text):
             row["change"] = change
         rows.append(row)
         log(f"  barcelona {name} ({local}) -> {value} (change {change})")
+
+    # Barley's second "s/c/o <position>" reference alternates between named
+    # positions (e.g. Barcelona one week, Tarragona another) rather than
+    # always the same city, so capture whichever place name is present
+    # instead of hard-coding one.
+    m = re.search(r"Cebada[^\n]*?Disponible s/c/o (\w+)\s+([\d.]+,\d{2}|s/c)\s+([+-]?[\d.]+,\d{2}|s/c)", text)
+    if m:
+        position, price_str, change_str = m.groups()
+        value = None if price_str == "s/c" else float(price_str.replace(".", "").replace(",", "."))
+        change = None if change_str == "s/c" else float(change_str.replace(".", "").replace(",", "."))
+        row = {"name": "Cevada", "local": f"{position} (disponível)"}
+        if value is not None:
+            row["value"] = value
+        if change is not None:
+            row["change"] = change
+        rows.append(row)
+        log(f"  barcelona Cevada ({position} (disponível)) -> {value} (change {change})")
+    else:
+        log("  barcelona Cevada (posição local) NOT FOUND")
+
     return rows
 
 
@@ -788,6 +810,22 @@ def merge_rows(existing, fresh, key_fields):
     return list(by_key.values())
 
 
+def prune_expired_contracts(existing, fresh, today):
+    # A contract missing from this run's fresh fetch is usually just a
+    # transient failure (keep its stale-but-still-valid history) - unless
+    # its delivery month has already started, in which case it has most
+    # likely stopped trading/been delisted and should stop cluttering the
+    # board with a value that will never update again.
+    fresh_keys = {(r["name"], r["contract"]) for r in fresh}
+    current_key = (today.year % 100, today.month)
+    kept = []
+    for r in existing:
+        key = (r["name"], r["contract"])
+        if key in fresh_keys or contract_sort_key(r["contract"]) > current_key:
+            kept.append(r)
+    return kept
+
+
 def sort_chicago(rows):
     order = {"Milho": 0, "Trigo": 1, "Soja": 2}
     return sorted(rows, key=lambda r: (order.get(r["name"], 9), contract_sort_key(r["contract"])))
@@ -830,7 +868,8 @@ def main():
     log("Fetching Chicago (Yahoo Finance)...")
     fresh_chicago = fetch_chicago(today)
     if fresh_chicago:
-        data["chicago"] = sort_chicago(merge_rows(data.get("chicago", []), fresh_chicago, ("name", "contract")))
+        old_chicago = prune_expired_contracts(data.get("chicago", []), fresh_chicago, today)
+        data["chicago"] = sort_chicago(merge_rows(old_chicago, fresh_chicago, ("name", "contract")))
 
     log("Fetching EUR/USD + 1y history (Yahoo Finance)...")
     try:
@@ -922,7 +961,8 @@ def main():
                     old_history = old_history_by_key.get((row["name"], row["contract"]))
                     if old_history:
                         row["history"] = old_history
-            data["euronext"] = sort_euronext(merge_rows(data.get("euronext", []), fresh_euronext, ("name", "contract")))
+            old_euronext = prune_expired_contracts(data.get("euronext", []), fresh_euronext, today)
+            data["euronext"] = sort_euronext(merge_rows(old_euronext, fresh_euronext, ("name", "contract")))
         fresh_fisico_a = fetch_fisico_agritel(html)
         if fresh_fisico_a:
             data["fisico"] = sort_fisico(merge_rows(data.get("fisico", []), fresh_fisico_a, ("name", "local")))
