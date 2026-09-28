@@ -1194,6 +1194,19 @@
     return m ? m[3] + "/" + m[2] : iso;
   }
 
+  function modalDateLabel(lastDate) {
+    var short = shortDate(lastDate);
+    var d = parseUpdatedAt(state.updatedAt);
+    if (d) {
+      var iso = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+      if (iso === lastDate) {
+        var timePart = /\s(\d{2}:\d{2})$/.exec(state.updatedAt || "");
+        if (timePart) return short + " às " + timePart[1];
+      }
+    }
+    return short;
+  }
+
   function latestHistoryDate(rows) {
     var best = null;
     (rows || []).forEach(function (r) {
@@ -1340,7 +1353,7 @@
     activeGranularityDays = granularityDays || 1;
     document.getElementById("history-modal-title").textContent = title;
     var lastDate = activeHistory.length ? activeHistory[activeHistory.length - 1].date : null;
-    document.getElementById("history-modal-date").textContent = lastDate ? "Última atualização: " + shortDate(lastDate) : "";
+    document.getElementById("history-modal-date").textContent = lastDate ? "Última atualização: " + modalDateLabel(lastDate) : "";
     document.getElementById("history-modal-overlay").hidden = false;
     var rangeTabs = document.querySelectorAll("#history-range-tabs .range-tab");
     var active = document.querySelector("#history-range-tabs .range-tab.active") || rangeTabs[rangeTabs.length - 1];
