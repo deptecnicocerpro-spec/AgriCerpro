@@ -1,6 +1,6 @@
 {
-  "updatedAt": "28/09 19:53",
-  "eurusd": 1.1373,
+  "updatedAt": "28/09 20:23",
+  "eurusd": 1.1371,
   "chicago": [
     {
       "name": "Milho",
@@ -43247,8 +43247,8 @@
     {
       "name": "Milho",
       "local": "Bordeaux, base jul.",
-      "value": 282.5,
-      "change": -4.0
+      "value": 279.5,
+      "change": -3.0
     },
     {
       "name": "Milho",
@@ -43271,14 +43271,14 @@
     {
       "name": "Cevada forrageira",
       "local": "Rouen, base jul.",
-      "value": 213.5,
-      "change": -2.0
+      "value": 210.0,
+      "change": -3.5
     },
     {
       "name": "Cevada cervejeira",
       "local": "FOB Creil, base jul.",
       "value": 231.0,
-      "change": 1.0
+      "change": 0.0
     },
     {
       "name": "Soja",
@@ -43294,14 +43294,14 @@
     {
       "name": "Colza",
       "local": "FOB Moselle, colheita 26",
-      "value": 549.0,
-      "change": -1.5
+      "value": 537.5,
+      "change": -11.5
     },
     {
       "name": "Ervilha forrageira",
       "local": "FOB Creil, base ago.",
-      "value": 236.0,
-      "change": -1.0
+      "value": 232.5,
+      "change": -3.5
     }
   ],
   "sima": [
@@ -44461,10 +44461,10 @@
     },
     {
       "date": "2026-09-28",
-      "value": 1.1373
+      "value": 1.1371
     }
   ],
-  "wti": 92.39,
+  "wti": 92.78,
   "wtiHistory": [
     {
       "date": "2025-09-29",
@@ -45468,10 +45468,10 @@
     },
     {
       "date": "2026-09-28",
-      "value": 92.39
+      "value": 92.78
     }
   ],
-  "brent": 97.8,
+  "brent": 98.07,
   "brentHistory": [
     {
       "date": "2025-09-29",
@@ -46475,7 +46475,7 @@
     },
     {
       "date": "2026-09-28",
-      "value": 97.8
+      "value": 98.07
     }
   ],
   "mapa": [
@@ -47335,9 +47335,9 @@
       "reference": true
     }
   ],
-  "eurusdChange": -0.0002,
-  "wtiChange": -0.02,
-  "brentChange": -6.52,
+  "eurusdChange": -0.0004,
+  "wtiChange": 0.37,
+  "brentChange": -6.25,
   "energyPT": 198.05,
   "energyPTHistory": [
     {
