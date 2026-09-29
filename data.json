@@ -1,5 +1,5 @@
 {
-  "updatedAt": "29/09 19:53",
+  "updatedAt": "29/09 20:24",
   "eurusd": 1.1344,
   "chicago": [
     {
@@ -44576,7 +44576,7 @@
       "value": 1.1344
     }
   ],
-  "wti": 89.57,
+  "wti": 89.3,
   "wtiHistory": [
     {
       "date": "2025-09-29",
@@ -45584,10 +45584,10 @@
     },
     {
       "date": "2026-09-29",
-      "value": 89.57
+      "value": 89.3
     }
   ],
-  "brent": 96.31,
+  "brent": 96.13,
   "brentHistory": [
     {
       "date": "2025-09-29",
@@ -46595,7 +46595,7 @@
     },
     {
       "date": "2026-09-29",
-      "value": 96.31
+      "value": 96.13
     }
   ],
   "mapa": [
@@ -47456,8 +47456,8 @@
     }
   ],
   "eurusdChange": -0.0034,
-  "wtiChange": -3.03,
-  "brentChange": -8.97,
+  "wtiChange": -3.3,
+  "brentChange": -9.15,
   "energyPT": 130.1,
   "energyPTHistory": [
     {
