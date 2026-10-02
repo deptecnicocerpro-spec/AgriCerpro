@@ -1,13 +1,13 @@
 {
-  "updatedAt": "02/10 12:23",
-  "eurusd": 1.1242,
+  "updatedAt": "02/10 12:51",
+  "eurusd": 1.1237,
   "chicago": [
     {
       "name": "Milho",
       "commodity": "corn",
       "contract": "Dez-26",
-      "value": 4.995,
-      "change": -0.0275,
+      "value": 4.9975,
+      "change": -0.025,
       "history": [
         {
           "date": "2025-10-02",
@@ -1015,7 +1015,7 @@
         },
         {
           "date": "2026-10-02",
-          "value": 4.995
+          "value": 4.9975
         }
       ]
     },
@@ -1023,8 +1023,8 @@
       "name": "Milho",
       "commodity": "corn",
       "contract": "Mar-27",
-      "value": 5.14,
-      "change": -0.0275,
+      "value": 5.1425,
+      "change": -0.025,
       "history": [
         {
           "date": "2025-10-02",
@@ -2032,7 +2032,7 @@
         },
         {
           "date": "2026-10-02",
-          "value": 5.14
+          "value": 5.1425
         }
       ]
     },
@@ -3057,8 +3057,8 @@
       "name": "Milho",
       "commodity": "corn",
       "contract": "Jul-27",
-      "value": 5.255,
-      "change": -0.025,
+      "value": 5.2525,
+      "change": -0.0275,
       "history": [
         {
           "date": "2025-10-02",
@@ -4066,7 +4066,7 @@
         },
         {
           "date": "2026-10-02",
-          "value": 5.255
+          "value": 5.2525
         }
       ]
     },
@@ -4074,8 +4074,8 @@
       "name": "Milho",
       "commodity": "corn",
       "contract": "Set-27",
-      "value": 5.065,
-      "change": -0.0225,
+      "value": 5.0625,
+      "change": -0.025,
       "history": [
         {
           "date": "2025-10-02",
@@ -5083,7 +5083,7 @@
         },
         {
           "date": "2026-10-02",
-          "value": 5.065
+          "value": 5.0625
         }
       ]
     },
@@ -5091,8 +5091,8 @@
       "name": "Trigo",
       "commodity": "wheat",
       "contract": "Dez-26",
-      "value": 6.8625,
-      "change": 0.035,
+      "value": 6.8725,
+      "change": 0.045,
       "history": [
         {
           "date": "2025-10-02",
@@ -6100,7 +6100,7 @@
         },
         {
           "date": "2026-10-02",
-          "value": 6.8625
+          "value": 6.8725
         }
       ]
     },
@@ -6108,8 +6108,8 @@
       "name": "Trigo",
       "commodity": "wheat",
       "contract": "Mar-27",
-      "value": 7.005,
-      "change": 0.035,
+      "value": 7.01,
+      "change": 0.04,
       "history": [
         {
           "date": "2025-10-02",
@@ -7117,7 +7117,7 @@
         },
         {
           "date": "2026-10-02",
-          "value": 7.005
+          "value": 7.01
         }
       ]
     },
@@ -7125,8 +7125,8 @@
       "name": "Trigo",
       "commodity": "wheat",
       "contract": "Mai-27",
-      "value": 7.0675,
-      "change": 0.0325,
+      "value": 7.07,
+      "change": 0.035,
       "history": [
         {
           "date": "2025-10-02",
@@ -8134,7 +8134,7 @@
         },
         {
           "date": "2026-10-02",
-          "value": 7.0675
+          "value": 7.07
         }
       ]
     },
@@ -8142,8 +8142,8 @@
       "name": "Trigo",
       "commodity": "wheat",
       "contract": "Jul-27",
-      "value": 7.0725,
-      "change": 0.025,
+      "value": 7.0775,
+      "change": 0.03,
       "history": [
         {
           "date": "2025-10-02",
@@ -9151,7 +9151,7 @@
         },
         {
           "date": "2026-10-02",
-          "value": 7.0725
+          "value": 7.0775
         }
       ]
     },
@@ -9159,8 +9159,8 @@
       "name": "Trigo",
       "commodity": "wheat",
       "contract": "Set-27",
-      "value": 7.115,
-      "change": 0.0175,
+      "value": 7.1225,
+      "change": 0.025,
       "history": [
         {
           "date": "2025-10-02",
@@ -10168,7 +10168,7 @@
         },
         {
           "date": "2026-10-02",
-          "value": 7.115
+          "value": 7.1225
         }
       ]
     },
@@ -10176,8 +10176,8 @@
       "name": "Soja",
       "commodity": "soybean",
       "contract": "Nov-26",
-      "value": 12.7675,
-      "change": -0.0725,
+      "value": 12.775,
+      "change": -0.065,
       "history": [
         {
           "date": "2025-10-02",
@@ -11185,7 +11185,7 @@
         },
         {
           "date": "2026-10-02",
-          "value": 12.7675
+          "value": 12.775
         }
       ]
     },
@@ -11193,8 +11193,8 @@
       "name": "Soja",
       "commodity": "soybean",
       "contract": "Jan-27",
-      "value": 12.94,
-      "change": -0.0675,
+      "value": 12.945,
+      "change": -0.0625,
       "history": [
         {
           "date": "2025-10-02",
@@ -12202,7 +12202,7 @@
         },
         {
           "date": "2026-10-02",
-          "value": 12.94
+          "value": 12.945
         }
       ]
     },
@@ -12210,8 +12210,8 @@
       "name": "Soja",
       "commodity": "soybean",
       "contract": "Mar-27",
-      "value": 13.04,
-      "change": -0.0675,
+      "value": 13.045,
+      "change": -0.0625,
       "history": [
         {
           "date": "2025-10-02",
@@ -13219,7 +13219,7 @@
         },
         {
           "date": "2026-10-02",
-          "value": 13.04
+          "value": 13.045
         }
       ]
     },
@@ -13227,8 +13227,8 @@
       "name": "Soja",
       "commodity": "soybean",
       "contract": "Mai-27",
-      "value": 13.135,
-      "change": -0.06,
+      "value": 13.13,
+      "change": -0.065,
       "history": [
         {
           "date": "2025-10-02",
@@ -14236,7 +14236,7 @@
         },
         {
           "date": "2026-10-02",
-          "value": 13.135
+          "value": 13.13
         }
       ]
     },
@@ -14244,8 +14244,8 @@
       "name": "Soja",
       "commodity": "soybean",
       "contract": "Jul-27",
-      "value": 13.1925,
-      "change": -0.0575,
+      "value": 13.19,
+      "change": -0.06,
       "history": [
         {
           "date": "2025-10-02",
@@ -15253,7 +15253,7 @@
         },
         {
           "date": "2026-10-02",
-          "value": 13.1925
+          "value": 13.19
         }
       ]
     }
@@ -15262,9 +15262,9 @@
     {
       "name": "Milho",
       "contract": "Nov-26",
-      "value": 268.75,
+      "value": 269.0,
       "terreNet": 265.0,
-      "change": 2.25,
+      "change": 2.5,
       "history": [
         {
           "date": "2024-06-06",
@@ -17644,7 +17644,7 @@
         },
         {
           "date": "2026-10-02",
-          "value": 268.75
+          "value": 269.0
         }
       ]
     },
@@ -24807,8 +24807,8 @@
     {
       "name": "Trigo mole",
       "contract": "Dez-26",
-      "value": 242.75,
-      "change": 3.75,
+      "value": 242.5,
+      "change": 3.5,
       "history": [
         {
           "date": "2023-12-12",
@@ -27668,7 +27668,7 @@
         },
         {
           "date": "2026-10-02",
-          "value": 242.75
+          "value": 242.5
         }
       ]
     },
@@ -30299,8 +30299,8 @@
     {
       "name": "Trigo mole",
       "contract": "Mai-27",
-      "value": 244.75,
-      "change": 3.25,
+      "value": 244.5,
+      "change": 3.0,
       "history": [
         {
           "date": "2024-05-13",
@@ -32752,7 +32752,7 @@
         },
         {
           "date": "2026-10-02",
-          "value": 244.75
+          "value": 244.5
         }
       ]
     },
@@ -34871,8 +34871,8 @@
     {
       "name": "Trigo mole",
       "contract": "Dez-27",
-      "value": 238.5,
-      "change": 2.25,
+      "value": 238.75,
+      "change": 2.5,
       "history": [
         {
           "date": "2024-12-11",
@@ -36716,7 +36716,7 @@
         },
         {
           "date": "2026-10-02",
-          "value": 238.5
+          "value": 238.75
         }
       ]
     },
@@ -39212,8 +39212,8 @@
     {
       "name": "Colza",
       "contract": "Fev-27",
-      "value": 555.5,
-      "change": 3.75,
+      "value": 556.0,
+      "change": 4.25,
       "history": [
         {
           "date": "2024-08-01",
@@ -41433,15 +41433,15 @@
         },
         {
           "date": "2026-10-02",
-          "value": 555.5
+          "value": 556.0
         }
       ]
     },
     {
       "name": "Colza",
       "contract": "Mai-27",
-      "value": 555.5,
-      "change": 3.25,
+      "value": 556.25,
+      "change": 4.0,
       "history": [
         {
           "date": "2024-11-01",
@@ -43397,7 +43397,7 @@
         },
         {
           "date": "2026-10-02",
-          "value": 555.5
+          "value": 556.25
         }
       ]
     },
@@ -47804,10 +47804,10 @@
     },
     {
       "date": "2026-10-02",
-      "value": 1.1242
+      "value": 1.1237
     }
   ],
-  "wti": 89.25,
+  "wti": 89.3,
   "wtiHistory": [
     {
       "date": "2025-10-02",
@@ -48815,10 +48815,10 @@
     },
     {
       "date": "2026-10-02",
-      "value": 89.25
+      "value": 89.3
     }
   ],
-  "brent": 100.01,
+  "brent": 99.75,
   "brentHistory": [
     {
       "date": "2025-10-02",
@@ -49826,7 +49826,7 @@
     },
     {
       "date": "2026-10-02",
-      "value": 100.01
+      "value": 99.75
     }
   ],
   "mapa": [
@@ -50706,9 +50706,9 @@
       "reference": true
     }
   ],
-  "eurusdChange": -0.0085,
-  "wtiChange": -3.62,
-  "brentChange": -2.3,
+  "eurusdChange": -0.009,
+  "wtiChange": -3.57,
+  "brentChange": -2.56,
   "energyPT": 177.72,
   "energyPTHistory": [
     {
