@@ -1,6 +1,6 @@
 {
-  "updatedAt": "02/10 19:53",
-  "eurusd": 1.1255,
+  "updatedAt": "02/10 20:24",
+  "eurusd": 1.1261,
   "chicago": [
     {
       "name": "Milho",
@@ -47804,10 +47804,10 @@
     },
     {
       "date": "2026-10-02",
-      "value": 1.1255
+      "value": 1.1261
     }
   ],
-  "wti": 91.1,
+  "wti": 91.05,
   "wtiHistory": [
     {
       "date": "2025-10-02",
@@ -48815,10 +48815,10 @@
     },
     {
       "date": "2026-10-02",
-      "value": 91.1
+      "value": 91.05
     }
   ],
-  "brent": 102.15,
+  "brent": 102.35,
   "brentHistory": [
     {
       "date": "2025-10-02",
@@ -49826,7 +49826,7 @@
     },
     {
       "date": "2026-10-02",
-      "value": 102.15
+      "value": 102.35
     }
   ],
   "mapa": [
@@ -50706,9 +50706,9 @@
       "reference": true
     }
   ],
-  "eurusdChange": -0.0072,
-  "wtiChange": -1.77,
-  "brentChange": -0.16,
+  "eurusdChange": -0.0066,
+  "wtiChange": -1.82,
+  "brentChange": 0.04,
   "energyPT": 177.72,
   "energyPTHistory": [
     {
