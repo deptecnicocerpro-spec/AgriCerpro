@@ -1,6 +1,6 @@
 {
-  "updatedAt": "05/10 13:59",
-  "eurusd": 1.1213,
+  "updatedAt": "05/10 14:30",
+  "eurusd": 1.1204,
   "chicago": [
     {
       "name": "Milho",
@@ -17595,8 +17595,8 @@
     {
       "name": "Milho",
       "contract": "Mar-27",
-      "value": 268.0,
-      "change": 4.25,
+      "value": 267.75,
+      "change": 4.0,
       "history": [
         {
           "date": "2024-08-06",
@@ -19808,7 +19808,7 @@
         },
         {
           "date": "2026-10-05",
-          "value": 268.0
+          "value": 267.75
         }
       ]
     },
@@ -27639,8 +27639,8 @@
     {
       "name": "Trigo mole",
       "contract": "Mar-27",
-      "value": 247.0,
-      "change": 3.5,
+      "value": 246.75,
+      "change": 3.25,
       "history": [
         {
           "date": "2024-03-12",
@@ -30260,15 +30260,15 @@
         },
         {
           "date": "2026-10-05",
-          "value": 247.0
+          "value": 246.75
         }
       ]
     },
     {
       "name": "Trigo mole",
       "contract": "Mai-27",
-      "value": 247.0,
-      "change": 3.25,
+      "value": 246.5,
+      "change": 2.75,
       "history": [
         {
           "date": "2024-05-13",
@@ -32724,15 +32724,15 @@
         },
         {
           "date": "2026-10-05",
-          "value": 247.0
+          "value": 246.5
         }
       ]
     },
     {
       "name": "Trigo mole",
       "contract": "Set-27",
-      "value": 235.25,
-      "change": 1.5,
+      "value": 234.75,
+      "change": 1.0,
       "history": [
         {
           "date": "2024-09-11",
@@ -34840,15 +34840,15 @@
         },
         {
           "date": "2026-10-05",
-          "value": 235.25
+          "value": 234.75
         }
       ]
     },
     {
       "name": "Trigo mole",
       "contract": "Dez-27",
-      "value": 239.25,
-      "change": 1.75,
+      "value": 238.75,
+      "change": 1.25,
       "history": [
         {
           "date": "2024-12-11",
@@ -36696,16 +36696,16 @@
         },
         {
           "date": "2026-10-05",
-          "value": 239.25
+          "value": 238.75
         }
       ]
     },
     {
       "name": "Colza",
       "contract": "Nov-26",
-      "value": 538.25,
+      "value": 537.75,
       "terreNet": 557.5,
-      "change": 1.5,
+      "change": 1.0,
       "history": [
         {
           "date": "2024-05-02",
@@ -39189,15 +39189,15 @@
         },
         {
           "date": "2026-10-05",
-          "value": 538.25
+          "value": 537.75
         }
       ]
     },
     {
       "name": "Colza",
       "contract": "Fev-27",
-      "value": 557.75,
-      "change": 2.5,
+      "value": 557.5,
+      "change": 2.25,
       "history": [
         {
           "date": "2024-08-01",
@@ -41421,15 +41421,15 @@
         },
         {
           "date": "2026-10-05",
-          "value": 557.75
+          "value": 557.5
         }
       ]
     },
     {
       "name": "Colza",
       "contract": "Mai-27",
-      "value": 558.0,
-      "change": 2.0,
+      "value": 558.25,
+      "change": 2.25,
       "history": [
         {
           "date": "2024-11-01",
@@ -43389,7 +43389,7 @@
         },
         {
           "date": "2026-10-05",
-          "value": 558.0
+          "value": 558.25
         }
       ]
     },
@@ -47800,10 +47800,10 @@
     },
     {
       "date": "2026-10-05",
-      "value": 1.1213
+      "value": 1.1204
     }
   ],
-  "wti": 90.21,
+  "wti": 89.22,
   "wtiHistory": [
     {
       "date": "2025-10-06",
@@ -48807,10 +48807,10 @@
     },
     {
       "date": "2026-10-05",
-      "value": 90.21
+      "value": 89.22
     }
   ],
-  "brent": 102.54,
+  "brent": 101.64,
   "brentHistory": [
     {
       "date": "2025-10-06",
@@ -49814,7 +49814,7 @@
     },
     {
       "date": "2026-10-05",
-      "value": 102.54
+      "value": 101.64
     }
   ],
   "mapa": [
@@ -50694,9 +50694,9 @@
       "reference": true
     }
   ],
-  "eurusdChange": -0.0037,
-  "wtiChange": -0.9,
-  "brentChange": 0.29,
+  "eurusdChange": -0.0046,
+  "wtiChange": -1.89,
+  "brentChange": -0.61,
   "energyPT": 196.88,
   "energyPTHistory": [
     {
