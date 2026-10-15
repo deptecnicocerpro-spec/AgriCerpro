@@ -1,6 +1,6 @@
 {
-  "updatedAt": "15/10 20:51",
-  "eurusd": 1.1216,
+  "updatedAt": "16/10 00:05",
+  "eurusd": 1.1218,
   "chicago": [
     {
       "name": "Milho",
@@ -47186,33 +47186,26 @@
   "sima": [
     {
       "name": "Milho Forrageiro",
-      "local": "Lisboa (sem. 38, 14-20/09)",
-      "value": 251.0
+      "local": "Lisboa (sem. 41, 05-11/10)",
+      "value": 250.0
     },
     {
       "name": "Cevada Forrageira",
-      "local": "Lisboa (sem. 38, 14-20/09)",
-      "value": 245.0
+      "local": "Lisboa (sem. 41, 05-11/10)",
+      "value": 240.0
     },
     {
       "name": "Trigo Mole Forrageiro",
-      "local": "Lisboa (sem. 38, 14-20/09)",
+      "local": "Lisboa (sem. 41, 05-11/10)",
       "value": 260.0
     },
     {
       "name": "Trigo Mole Panificável",
-      "local": "Lisboa (sem. 38, 14-20/09)",
-      "value": 280.0
+      "local": "Lisboa (sem. 41, 05-11/10)",
+      "value": 285.0
     }
   ],
   "simaHistory": [
-    {
-      "week": 25,
-      "milho": 220.0,
-      "cevada": 214.0,
-      "trigoForr": 225.0,
-      "trigoPanif": 241.0
-    },
     {
       "week": 26,
       "milho": 226.0,
@@ -47303,13 +47296,16 @@
       "cevada": 245.0,
       "trigoForr": 260.0,
       "trigoPanif": 280.0
+    },
+    {
+      "week": 41,
+      "milho": 250.0,
+      "cevada": 240.0,
+      "trigoForr": 260.0,
+      "trigoPanif": 285.0
     }
   ],
   "eurusdHistory": [
-    {
-      "date": "2025-10-14",
-      "value": 1.1602
-    },
     {
       "date": "2025-10-15",
       "value": 1.1646
@@ -48343,11 +48339,15 @@
       "value": 1.1204
     },
     {
+      "date": "2026-10-14",
+      "value": 1.1195
+    },
+    {
       "date": "2026-10-15",
-      "value": 1.1216
+      "value": 1.1218
     }
   ],
-  "wti": 96.37,
+  "wti": 96.28,
   "wtiHistory": [
     {
       "date": "2025-10-15",
@@ -49355,10 +49355,10 @@
     },
     {
       "date": "2026-10-15",
-      "value": 96.37
+      "value": 96.28
     }
   ],
-  "brent": 105.88,
+  "brent": 105.73,
   "brentHistory": [
     {
       "date": "2025-10-15",
@@ -50366,7 +50366,7 @@
     },
     {
       "date": "2026-10-15",
-      "value": 105.88
+      "value": 105.73
     }
   ],
   "mapa": [
@@ -51192,16 +51192,16 @@
       "origin": "US Gulf",
       "dest": "Espanha",
       "vessel": "Panamax",
-      "value": 27.0,
-      "date": "26 Sep 2026",
+      "value": 28.0,
+      "date": "10 Oct 2026",
       "change": 0.0
     },
     {
       "origin": "US Gulf",
       "dest": "Europa",
       "vessel": "Panamax",
-      "value": 27.0,
-      "date": "26 Sep 2026",
+      "value": 28.0,
+      "date": "10 Oct 2026",
       "change": 0.0
     },
     {
@@ -51209,7 +51209,7 @@
       "dest": "Espanha",
       "vessel": "Panamax",
       "value": 37.0,
-      "date": "26 Sep 2026",
+      "date": "10 Oct 2026",
       "change": 0.0
     },
     {
@@ -51217,7 +51217,7 @@
       "dest": "Espanha",
       "vessel": "Panamax",
       "value": 41.0,
-      "date": "26 Sep 2026",
+      "date": "10 Oct 2026",
       "change": 0.0
     },
     {
@@ -51225,7 +51225,7 @@
       "dest": "Leste Espanha",
       "vessel": "Panamax",
       "value": 23.0,
-      "date": "26 Sep 2026",
+      "date": "10 Oct 2026",
       "change": 0.0
     },
     {
@@ -51233,23 +51233,23 @@
       "dest": "Leste Espanha",
       "vessel": "Panamax",
       "value": 44.0,
-      "date": "26 Sep 2026",
+      "date": "10 Oct 2026",
       "change": 0.0
     },
     {
       "origin": "US Gulf",
       "dest": "Porto de Lisboa (referência)",
       "vessel": "Panamax",
-      "value": 27.0,
-      "date": "26 Sep 2026",
+      "value": 28.0,
+      "date": "10 Oct 2026",
       "change": 0.0,
       "reference": true
     }
   ],
-  "eurusdChange": 0.0012,
-  "wtiChange": 1.28,
-  "brentChange": -0.18,
-  "energyPT": 193.11,
+  "eurusdChange": 0.0023,
+  "wtiChange": 1.19,
+  "brentChange": -0.33,
+  "energyPT": 191.64,
   "energyPTHistory": [
     {
       "date": "2025-09-06",
@@ -52830,9 +52830,13 @@
     {
       "date": "2026-10-15",
       "value": 193.11
+    },
+    {
+      "date": "2026-10-16",
+      "value": 191.64
     }
   ],
-  "energyPTChange": 6.67,
+  "energyPTChange": -1.47,
   "gasPT": 86.41,
   "gasPTHistory": [
     {
