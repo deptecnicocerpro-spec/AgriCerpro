@@ -1,6 +1,6 @@
 {
-  "updatedAt": "16/10 00:05",
-  "eurusd": 1.1218,
+  "updatedAt": "16/10 00:16",
+  "eurusd": 1.1217,
   "chicago": [
     {
       "name": "Milho",
@@ -47186,33 +47186,26 @@
   "sima": [
     {
       "name": "Milho Forrageiro",
-      "local": "Lisboa (sem. 41, 05-11/10)",
-      "value": 250.0
+      "local": "Lisboa (sem. 40, 28/09-04/10)",
+      "value": 249.5
     },
     {
       "name": "Cevada Forrageira",
-      "local": "Lisboa (sem. 41, 05-11/10)",
-      "value": 240.0
+      "local": "Lisboa (sem. 40, 28/09-04/10)",
+      "value": 238.5
     },
     {
       "name": "Trigo Mole Forrageiro",
-      "local": "Lisboa (sem. 41, 05-11/10)",
-      "value": 260.0
+      "local": "Lisboa (sem. 40, 28/09-04/10)",
+      "value": 262.0
     },
     {
       "name": "Trigo Mole Panificável",
-      "local": "Lisboa (sem. 41, 05-11/10)",
-      "value": 285.0
+      "local": "Lisboa (sem. 40, 28/09-04/10)",
+      "value": 286.0
     }
   ],
   "simaHistory": [
-    {
-      "week": 26,
-      "milho": 226.0,
-      "cevada": 219.0,
-      "trigoForr": 225.0,
-      "trigoPanif": 240.0
-    },
     {
       "week": 27,
       "milho": 228.0,
@@ -47296,6 +47289,13 @@
       "cevada": 245.0,
       "trigoForr": 260.0,
       "trigoPanif": 280.0
+    },
+    {
+      "week": 40,
+      "milho": 249.5,
+      "cevada": 238.5,
+      "trigoForr": 262.0,
+      "trigoPanif": 286.0
     },
     {
       "week": 41,
@@ -48344,10 +48344,10 @@
     },
     {
       "date": "2026-10-15",
-      "value": 1.1218
+      "value": 1.1217
     }
   ],
-  "wti": 96.28,
+  "wti": 96.09,
   "wtiHistory": [
     {
       "date": "2025-10-15",
@@ -49355,10 +49355,10 @@
     },
     {
       "date": "2026-10-15",
-      "value": 96.28
+      "value": 96.09
     }
   ],
-  "brent": 105.73,
+  "brent": 105.62,
   "brentHistory": [
     {
       "date": "2025-10-15",
@@ -50366,7 +50366,7 @@
     },
     {
       "date": "2026-10-15",
-      "value": 105.73
+      "value": 105.62
     }
   ],
   "mapa": [
@@ -51246,9 +51246,9 @@
       "reference": true
     }
   ],
-  "eurusdChange": 0.0023,
-  "wtiChange": 1.19,
-  "brentChange": -0.33,
+  "eurusdChange": 0.0022,
+  "wtiChange": 1.0,
+  "brentChange": -0.44,
   "energyPT": 191.64,
   "energyPTHistory": [
     {
