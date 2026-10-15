@@ -38,7 +38,11 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data.json
           git diff --cached --quiet || git commit -m "Update market data"
-          git push
+          # One retry (rebase on top of anything pushed meanwhile) before
+          # giving up; either way the site still deploys below from the
+          # freshly-fetched data.json already on disk in this run, so a
+          # push failure here never skips publishing this run's numbers.
+          git push || (git pull --rebase && git push) || echo "push failed after retry - deploying local data.json anyway"
 
       # Commits made with the default GITHUB_TOKEN don't trigger other
       # workflows (incl. the push-triggered pages.yml), so this job deploys
