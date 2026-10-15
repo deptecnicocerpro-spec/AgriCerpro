@@ -269,7 +269,11 @@ def fetch_sima(existing_sima_history):
     today = datetime.now(timezone.utc)
     iso_year, iso_week, _ = today.isocalendar()
 
-    for week in (iso_week, iso_week - 1, iso_week - 2):
+    # Look back further than a couple of weeks: if the pipeline misses a
+    # stretch of runs (or the bulletin's own page layout changes and a few
+    # weeks fail to parse), a narrow window leaves this permanently stuck on
+    # old data instead of catching up once things are fixed.
+    for week in range(iso_week, iso_week - 6, -1):
         if week in known_weeks or week < 1:
             continue
         url = f"https://regsima.gpp.pt/regsima/static/pdf/{iso_year}/arvs/arvs_News{week}.pdf"
@@ -288,10 +292,17 @@ def fetch_sima(existing_sima_history):
                 page1_text = pdf.pages[0].extract_text() or ""
                 date_range = parse_week_dates(page1_text)
 
+                # The price table's page index has shifted before (an extra
+                # chart page got inserted ahead of it) - scan for whichever
+                # page actually has the table instead of assuming a fixed
+                # position in the document.
                 values = {}
-                page4 = pdf.pages[3] if len(pdf.pages) > 3 else None
-                if page4:
-                    for table in (page4.extract_tables() or []):
+                for page in pdf.pages:
+                    page_text = page.extract_text() or ""
+                    if "Lisboa" not in page_text:
+                        continue
+                    page_values = {}
+                    for table in (page.extract_tables() or []):
                         current_crop = None
                         for row in table:
                             cells = [(c or "").strip() for c in row]
@@ -302,8 +313,11 @@ def fetch_sima(existing_sima_history):
                             if current_crop and "Lisboa" in cells:
                                 for c in cells:
                                     if PRICE_RE.match(c):
-                                        values[current_crop] = float(c.replace(",", "."))
+                                        page_values[current_crop] = float(c.replace(",", "."))
                                         break
+                    values.update(page_values)
+                    if len(values) == 4:
+                        break
         except Exception as exc:
             log(f"  sima week {week} PARSE FAILED: {exc}")
             continue
@@ -438,13 +452,16 @@ def fetch_freight_html():
 def fetch_freight(html):
     rows = []
     for origin, dest, vessel, slug in FREIGHT_ROUTES:
+        # The cell markup around the route link/label has changed shape more
+        # than once (an extra wrapper div + watchlist button got added at
+        # one point) - don't anchor tightly to the exact tags between the
+        # label and the price, just require they stay on the same row.
         pattern = (
-            r'href="/freight/grains/' + re.escape(slug) + r'"[^>]*>[^<]*</a><span[^>]*>[^<]*</span></td>'
-            r'<td[^>]*>[^<]*</td><td[^>]*>[^<]*</td>'
+            r'href="/freight/grains/' + re.escape(slug) + r'"[^>]*>[^<]*</a><span[^>]*>[^<]*</span>.*?'
             r'<td[^>]*>\$([\d.]+)</td><td[^>]*>[^<]*</td>'
             r'<td[^>]*><span[^>]*>([^<]+)</span></td><td[^>]*>([^<]+)</td>'
         )
-        m = re.search(pattern, html)
+        m = re.search(pattern, html, re.S)
         if not m:
             log(f"  freight {origin}->{dest} NOT FOUND")
             continue
@@ -666,7 +683,10 @@ def fetch_barcelona():
     today = datetime.now(timezone.utc)
     iso_year, iso_week, _ = today.isocalendar()
 
-    for week in (iso_week, iso_week - 1, iso_week - 2):
+    # Same reasoning as MAPA/SIMA: this source has gone multiple weeks
+    # without publishing before, so a narrow lookback leaves it stuck on old
+    # data even once a new bulletin finally appears.
+    for week in range(iso_week, iso_week - 6, -1):
         if week < 1:
             continue
         try:
