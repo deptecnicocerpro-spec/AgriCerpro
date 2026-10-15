@@ -356,6 +356,7 @@
     white-space: nowrap;
     flex: 0 0 auto;
   }
+  .board-date.stale { color: var(--bad); font-weight: 700; }
 
   .exchange-tag {
     font-family: 'Roboto Mono', monospace;
@@ -1219,23 +1220,71 @@
     return best;
   }
 
-  function setBoardDate(id, text) {
+  function setBoardDate(id, text, stale) {
     var el = document.getElementById(id);
-    if (el) el.textContent = text;
+    if (!el) return;
+    el.textContent = stale ? text + " ⚠" : text;
+    el.classList.toggle("stale", !!stale);
   }
 
+  function dateFromIso(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || "");
+    return m ? new Date(parseInt(m[1], 10), parseInt(m[2], 10) - 1, parseInt(m[3], 10)) : null;
+  }
+
+  function dateFromDMY(s) {
+    var MONTHS = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+    var m = /^(\d{1,2})\s+(\w{3})\s+(\d{4})$/.exec(s || "");
+    return (m && m[2] in MONTHS) ? new Date(parseInt(m[3], 10), MONTHS[m[2]], parseInt(m[1], 10)) : null;
+  }
+
+  function dateFromIsoWeek(week) {
+    if (!week) return null;
+    var year = new Date().getFullYear();
+    var jan4 = new Date(year, 0, 4);
+    var jan4Day = (jan4.getDay() + 6) % 7; // Monday-based weekday (0 = Mon)
+    var week1Monday = new Date(jan4);
+    week1Monday.setDate(jan4.getDate() - jan4Day);
+    var target = new Date(week1Monday);
+    target.setDate(week1Monday.getDate() + (week - 1) * 7);
+    return target;
+  }
+
+  function daysAgo(d) {
+    if (!d) return null;
+    return Math.floor((Date.now() - d.getTime()) / 86400000);
+  }
+
+  // Thresholds reflect each source's own publishing rhythm - daily markets
+  // (Chicago/Euronext/Físico) flagged past a long weekend+buffer, weekly
+  // bulletins (SIMA/MAPA/Tarragona/Novara/Vercelli) past ~3 missed weeks,
+  // freight past ~10 days. The point is a gap that used to go unnoticed for
+  // weeks (like MAPA's) now shows up as a visible warning instead of silently
+  // looking normal forever.
   function renderBoardDates() {
-    setBoardDate("chicago-date", shortDate(latestHistoryDate(state.chicago)));
-    setBoardDate("euronext-date", shortDate(latestHistoryDate(state.euronext)));
-    setBoardDate("fisico-date", (state.updatedAt || "—").split(" ")[0]);
+    var chicagoDate = latestHistoryDate(state.chicago);
+    setBoardDate("chicago-date", shortDate(chicagoDate), daysAgo(dateFromIso(chicagoDate)) > 3);
+
+    var euronextDate = latestHistoryDate(state.euronext);
+    setBoardDate("euronext-date", shortDate(euronextDate), daysAgo(dateFromIso(euronextDate)) > 3);
+
+    var fisicoText = (state.updatedAt || "—").split(" ")[0];
+    setBoardDate("fisico-date", fisicoText, daysAgo(parseUpdatedAt(state.updatedAt)) > 3);
+
     var simaLocal = (state.sima && state.sima[0] && state.sima[0].local) || "";
-    var simaWeek = /sem\.\s*(\d+)/.exec(simaLocal);
-    setBoardDate("sima-date", simaWeek ? "Sem. " + simaWeek[1] : "—");
-    setBoardDate("mapa-date", state.mapaWeek ? "Sem. " + state.mapaWeek : "—");
-    setBoardDate("barcelona-date", shortDate(state.barcelonaDate));
-    setBoardDate("freight-date", (state.freight && state.freight[0] && state.freight[0].date) || "—");
-    setBoardDate("riso-novara-date", shortDate(state.risoNovaraDate));
-    setBoardDate("riso-vercelli-date", shortDate(state.risoVercelliDate));
+    var simaWeekM = /sem\.\s*(\d+)/.exec(simaLocal);
+    var simaWeek = simaWeekM ? parseInt(simaWeekM[1], 10) : null;
+    setBoardDate("sima-date", simaWeek ? "Sem. " + simaWeek : "—", daysAgo(dateFromIsoWeek(simaWeek)) > 21);
+
+    setBoardDate("mapa-date", state.mapaWeek ? "Sem. " + state.mapaWeek : "—", daysAgo(dateFromIsoWeek(state.mapaWeek)) > 21);
+
+    setBoardDate("barcelona-date", shortDate(state.barcelonaDate), daysAgo(dateFromIso(state.barcelonaDate)) > 21);
+
+    var freightText = (state.freight && state.freight[0] && state.freight[0].date) || "—";
+    setBoardDate("freight-date", freightText, daysAgo(dateFromDMY(freightText)) > 10);
+
+    setBoardDate("riso-novara-date", shortDate(state.risoNovaraDate), daysAgo(dateFromIso(state.risoNovaraDate)) > 21);
+    setBoardDate("riso-vercelli-date", shortDate(state.risoVercelliDate), daysAgo(dateFromIso(state.risoVercelliDate)) > 21);
   }
 
   function renderAll() {
