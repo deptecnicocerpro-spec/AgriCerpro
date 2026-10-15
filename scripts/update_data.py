@@ -19,6 +19,7 @@ board simply keeps its previous value - no fabricated data is written.
 import csv
 import io
 import json
+import os
 import re
 import sys
 from datetime import datetime, timedelta, timezone
@@ -882,14 +883,23 @@ def main():
             data = json.load(f)
     except FileNotFoundError:
         data = {"chicago": [], "euronext": [], "fisico": [], "sima": [], "simaHistory": [], "mapa": [], "freight": []}
+    except Exception as exc:
+        # A corrupted/truncated data.json (e.g. the process got killed mid-
+        # write on a previous run) must never permanently brick every future
+        # run by crashing here before anything can even be fetched.
+        log(f"  data.json unreadable ({exc}), starting from an empty state")
+        data = {"chicago": [], "euronext": [], "fisico": [], "sima": [], "simaHistory": [], "mapa": [], "freight": []}
 
     today = datetime.now(timezone.utc)
 
     log("Fetching Chicago (Yahoo Finance)...")
-    fresh_chicago = fetch_chicago(today)
-    if fresh_chicago:
-        old_chicago = prune_expired_contracts(data.get("chicago", []), fresh_chicago, today)
-        data["chicago"] = sort_chicago(merge_rows(old_chicago, fresh_chicago, ("name", "contract")))
+    try:
+        fresh_chicago = fetch_chicago(today)
+        if fresh_chicago:
+            old_chicago = prune_expired_contracts(data.get("chicago", []), fresh_chicago, today)
+            data["chicago"] = sort_chicago(merge_rows(old_chicago, fresh_chicago, ("name", "contract")))
+    except Exception as exc:
+        log(f"  chicago FAILED: {exc}")
 
     log("Fetching EUR/USD + 1y history (Yahoo Finance)...")
     try:
@@ -999,29 +1009,35 @@ def main():
         log(f"  terre-net FAILED: {exc}")
 
     log("Fetching SIMA (regsima.gpp.pt)...")
-    sima_result = fetch_sima(data.get("simaHistory", []))
-    if sima_result:
-        week = sima_result["week"]
-        date_range = sima_result["date_range"]
-        values = sima_result["values"]
-        local_label = f"Lisboa (sem. {week}, {date_range})"
-        data["sima"] = [{"name": crop, "local": local_label, "value": values[crop]} for crop in SIMA_CROPS]
+    try:
+        sima_result = fetch_sima(data.get("simaHistory", []))
+        if sima_result:
+            week = sima_result["week"]
+            date_range = sima_result["date_range"]
+            values = sima_result["values"]
+            local_label = f"Lisboa (sem. {week}, {date_range})"
+            data["sima"] = [{"name": crop, "local": local_label, "value": values[crop]} for crop in SIMA_CROPS]
 
-        history_key_map = {"Milho Forrageiro": "milho", "Cevada Forrageira": "cevada",
-                            "Trigo Mole Forrageiro": "trigoForr", "Trigo Mole Panificável": "trigoPanif"}
-        entry = {"week": week}
-        for crop, key in history_key_map.items():
-            entry[key] = values[crop]
-        history = data.get("simaHistory", [])
-        history = [h for h in history if h["week"] != week] + [entry]
-        history.sort(key=lambda h: h["week"])
-        data["simaHistory"] = history[-14:]
+            history_key_map = {"Milho Forrageiro": "milho", "Cevada Forrageira": "cevada",
+                                "Trigo Mole Forrageiro": "trigoForr", "Trigo Mole Panificável": "trigoPanif"}
+            entry = {"week": week}
+            for crop, key in history_key_map.items():
+                entry[key] = values[crop]
+            history = data.get("simaHistory", [])
+            history = [h for h in history if h["week"] != week] + [entry]
+            history.sort(key=lambda h: h["week"])
+            data["simaHistory"] = history[-14:]
+    except Exception as exc:
+        log(f"  sima FAILED: {exc}")
 
     log("Fetching MAPA (mapa.gob.es, precios medios nacionales)...")
-    mapa_rows, mapa_week = fetch_mapa()
-    if mapa_rows:
-        data["mapa"] = sort_mapa(mapa_rows)
-        data["mapaWeek"] = mapa_week
+    try:
+        mapa_rows, mapa_week = fetch_mapa()
+        if mapa_rows:
+            data["mapa"] = sort_mapa(mapa_rows)
+            data["mapaWeek"] = mapa_week
+    except Exception as exc:
+        log(f"  mapa FAILED: {exc}")
 
     log("Fetching Fretes marítimos (commodityscope.com)...")
     try:
@@ -1035,9 +1051,14 @@ def main():
     lisbon_now = today.astimezone(ZoneInfo("Europe/Lisbon"))
     data["updatedAt"] = lisbon_now.strftime("%d/%m %H:%M")
 
-    with open(DATA_PATH, "w", encoding="utf-8") as f:
+    # Write atomically (temp file + rename) so a crash or timeout mid-write
+    # can never leave data.json half-written/corrupted and brick every
+    # subsequent run from the very first line of main().
+    tmp_path = DATA_PATH + ".tmp"
+    with open(tmp_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
         f.write("\n")
+    os.replace(tmp_path, DATA_PATH)
 
     log(f"Wrote {DATA_PATH}, updatedAt={data['updatedAt']}")
 
