@@ -1,6 +1,6 @@
 {
-  "updatedAt": "29/10 18:56",
-  "eurusd": 1.1167,
+  "updatedAt": "29/10 23:14",
+  "eurusd": 1.1193,
   "chicago": [
     {
       "name": "Milho",
@@ -15262,9 +15262,9 @@
     {
       "name": "Milho",
       "contract": "Nov-26",
-      "value": 308.5,
+      "value": 308.75,
       "terreNet": 265.0,
-      "change": 20.5,
+      "change": 20.75,
       "history": [
         {
           "date": "2024-06-06",
@@ -17720,15 +17720,15 @@
         },
         {
           "date": "2026-10-29",
-          "value": 308.5
+          "value": 308.75
         }
       ]
     },
     {
       "name": "Milho",
       "contract": "Mar-27",
-      "value": 259.5,
-      "change": 0.0,
+      "value": 259.25,
+      "change": -0.25,
       "history": [
         {
           "date": "2024-08-06",
@@ -20012,7 +20012,7 @@
         },
         {
           "date": "2026-10-29",
-          "value": 259.5
+          "value": 259.25
         }
       ]
     },
@@ -30831,8 +30831,8 @@
     {
       "name": "Trigo mole",
       "contract": "Mai-27",
-      "value": 226.25,
-      "change": 0.0,
+      "value": 226.5,
+      "change": 0.25,
       "history": [
         {
           "date": "2024-05-13",
@@ -33360,15 +33360,15 @@
         },
         {
           "date": "2026-10-29",
-          "value": 226.25
+          "value": 226.5
         }
       ]
     },
     {
       "name": "Trigo mole",
       "contract": "Set-27",
-      "value": 221.0,
-      "change": 0.25,
+      "value": 221.5,
+      "change": 0.75,
       "history": [
         {
           "date": "2024-09-11",
@@ -35548,7 +35548,7 @@
         },
         {
           "date": "2026-10-29",
-          "value": 221.0
+          "value": 221.5
         }
       ]
     },
@@ -42352,8 +42352,8 @@
     {
       "name": "Colza",
       "contract": "Mai-27",
-      "value": 555.25,
-      "change": 1.25,
+      "value": 554.75,
+      "change": 0.75,
       "history": [
         {
           "date": "2024-11-01",
@@ -44385,15 +44385,15 @@
         },
         {
           "date": "2026-10-29",
-          "value": 555.25
+          "value": 554.75
         }
       ]
     },
     {
       "name": "Colza",
       "contract": "Ago-27",
-      "value": 533.0,
-      "change": 1.25,
+      "value": 532.5,
+      "change": 0.75,
       "history": [
         {
           "date": "2025-02-03",
@@ -46173,7 +46173,7 @@
         },
         {
           "date": "2026-10-29",
-          "value": 533.0
+          "value": 532.5
         }
       ]
     },
@@ -47726,14 +47726,14 @@
     {
       "name": "Milho",
       "local": "Bordeaux, base jul.",
-      "value": 281.0,
-      "change": -1.5
+      "value": 277.0,
+      "change": -4.0
     },
     {
       "name": "Milho",
       "local": "FOB Rhin, base jul.",
-      "value": 272.0,
-      "change": 0.0
+      "value": 266.0,
+      "change": -6.0
     },
     {
       "name": "Trigo mole",
@@ -47750,14 +47750,14 @@
     {
       "name": "Cevada forrageira",
       "local": "Rouen, base jul.",
-      "value": 206.5,
-      "change": -0.5
+      "value": 207.5,
+      "change": 1.0
     },
     {
       "name": "Cevada cervejeira",
       "local": "FOB Creil, base jul.",
-      "value": 236.0,
-      "change": -1.0
+      "value": 237.0,
+      "change": 1.0
     },
     {
       "name": "Soja",
@@ -47767,20 +47767,20 @@
     {
       "name": "Girassol oleico",
       "local": "St Nazaire, colheita 26",
-      "value": 620.0,
-      "change": 0.0
+      "value": 613.0,
+      "change": -7.0
     },
     {
       "name": "Colza",
       "local": "FOB Moselle, colheita 26",
-      "value": 555.0,
-      "change": 1.5
+      "value": 555.5,
+      "change": 0.5
     },
     {
       "name": "Ervilha forrageira",
       "local": "FOB Creil, base ago.",
       "value": 225.0,
-      "change": -2.0
+      "change": 0.0
     }
   ],
   "sima": [
@@ -48944,10 +48944,10 @@
     },
     {
       "date": "2026-10-29",
-      "value": 1.1167
+      "value": 1.1193
     }
   ],
-  "wti": 102.24,
+  "wti": 102.84,
   "wtiHistory": [
     {
       "date": "2025-10-29",
@@ -49955,10 +49955,10 @@
     },
     {
       "date": "2026-10-29",
-      "value": 102.24
+      "value": 102.84
     }
   ],
-  "brent": 110.91,
+  "brent": 111.48,
   "brentHistory": [
     {
       "date": "2025-10-29",
@@ -50966,7 +50966,7 @@
     },
     {
       "date": "2026-10-29",
-      "value": 110.91
+      "value": 111.48
     }
   ],
   "mapa": [
@@ -51846,9 +51846,9 @@
       "reference": true
     }
   ],
-  "eurusdChange": 0.0037,
-  "wtiChange": -0.54,
-  "brentChange": -4.41,
+  "eurusdChange": 0.0063,
+  "wtiChange": 0.06,
+  "brentChange": -3.84,
   "energyPT": 231.01,
   "energyPTHistory": [
     {
