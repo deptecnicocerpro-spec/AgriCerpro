@@ -2,7 +2,12 @@ name: Update market data
 
 on:
   schedule:
-    - cron: '13,43 6-19 * * 1-5'
+    # GitHub silently stopped honoring a 30-min cron after a while (0 runs of
+    # any kind for 3+ days, not even failures - a known platform quirk where
+    # very frequent schedules eventually get dropped). Hourly, off the clock
+    # hour, is GitHub's own recommended cadence for reliability; re-editing
+    # this file also forces GitHub to re-register the schedule right now.
+    - cron: '17 6-19 * * 1-5'
   workflow_dispatch: {}
 
 permissions:
